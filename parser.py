@@ -270,6 +270,9 @@ class DanmicholoParser(object):
                     #if self.raise_errors:
                     #raise DanmicholoParseError("Blank/invalid html tag encountered near %d" % i)
                     self.errors.append("Blank/invalid html tag encountered near %d" % i)
+                    if len(self.errors) > 10:
+                        self.errors.append("Too many errors. I'm giving up")
+                        break
                     continue
                 tag = { }
                 for a in starttag[1:]:
