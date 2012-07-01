@@ -230,6 +230,20 @@ class DanmicholoParser(object):
 
     @property
     def tags(self):
+        """
+        A simple and unsophisticated HTML parser, does not even handle things like tags inside tags, 
+        but those should be avoided in wikitext I think. 
+
+        Returns a dictionary of tag names, with each dictionary item containing a list of the occurances of that tag,
+        so you can do things like this:
+
+        >>> nrefs = len([r for r in dp.tags['ref'] if 'content' in r])
+
+        >>> for r in tags['ref']:
+        >>>    if 'name' in r:
+        >>>        print r['name']
+
+        """
 
         # use cached value if available
         try:
@@ -237,36 +251,44 @@ class DanmicholoParser(object):
         except:
             pass
 
-        # We should keep track of all brackets, so we don't split inside a bracketed part:
-        brackets = { 'round' : 0, 'square': 0, 'curly': 0, 'angle': 0 }
-        intag = False
-        instarttag = False
         tags = {}
-        tagname = ''
+        state = ''
+        starttag = ''
         tagcontent = ''
         for c in self.text:
-            if brackets['angle'] == 1 and c == '>': 
-                brackets['angle'] -= 1
-                if intag and instarttag:
-                    tagcontent = ''
-                elif not intag:
-                    tagname = tagname.strip()
-                    if not tagname in tags:
-                        tags[tagname] = []
-                    tags[tagname].append(tagcontent.strip())
+            if state == 'starttag' and c == '>':
+                state = 'intag'
+            elif state == 'comment' and c == '>':
+                state = ''
+            elif state == 'endtag' and c == '>':
+                state = ''
+                starttag = starttag.strip().split()
+                tagname = starttag[0]
+                tag = { }
+                for a in starttag[1:]:
+                    aa = [q.strip(' "\'') for q in a.split('=')]
+                    if len(aa)==2:
+                        tag[aa[0]] = aa[1]
+                if len(tagcontent) > 0:
+                    tag['content'] = tagcontent.strip()
+                if not tagname in tags:
+                    tags[tagname] = []
+                tags[tagname].append(tag)
 
-                instarttag = False
-            elif brackets['angle'] == 0 and c == '<': 
-                brackets['angle'] += 1
-                if not intag:
-                    instarttag = True
-                intag = True
-            elif brackets['angle'] == 1 and c == '/':
-                intag = False
-            elif brackets['angle'] == 0 and intag == True:
+            elif state == 'intag' and c == '<':
+                state = 'endtag'
+            elif state == '' and c == '<':
+                state = 'starttag'
+                starttag = ''
+                tagcontent = ''
+            elif state == 'starttag' and c == '/':
+                state = 'endtag'
+            elif state == 'starttag' and c == '!':
+                state = 'comment'
+            elif state == 'starttag':
+                starttag += c
+            elif state == 'intag':
                 tagcontent += c
-            elif brackets['angle'] == 1 and instarttag == True:
-                tagname += c
 
         self._tags = tags
         
