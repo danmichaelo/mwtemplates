@@ -104,6 +104,7 @@ class DanmicholoParser(object):
     def __init__(self, text, debug = False):
         #self.parse(text, debug = debug)
         self.text = text
+        self.errors = []
         pass
 
 
@@ -255,7 +256,7 @@ class DanmicholoParser(object):
         state = ''
         starttag = ''
         tagcontent = ''
-        for c in self.text:
+        for i,c in enumerate(self.text):
             if state == 'starttag' and c == '>':
                 state = 'intag'
             elif state == 'comment' and c == '>':
@@ -263,7 +264,13 @@ class DanmicholoParser(object):
             elif state == 'endtag' and c == '>':
                 state = ''
                 starttag = starttag.strip().split()
-                tagname = starttag[0]
+                try:
+                    tagname = starttag[0]
+                except:
+                    #if self.raise_errors:
+                    #raise DanmicholoParseError("Blank/invalid html tag encountered near %d" % i)
+                    self.errors.append("Blank/invalid html tag encountered near %d" % i)
+                    continue
                 tag = { }
                 for a in starttag[1:]:
                     aa = [q.strip(' "\'') for q in a.split('=')]
