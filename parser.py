@@ -201,6 +201,9 @@ class DanmicholoParser(object):
 
             if c == '}': 
                 brackets['curly'] -= 1
+                if brackets['angle'] > 0:
+                    brackets['angle'] = 0
+                    intag = False
             elif c == '{': 
                 brackets['curly'] += 1
             elif c == '>': 
