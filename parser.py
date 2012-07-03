@@ -223,8 +223,8 @@ class DanmicholoParser(object):
         #print len(out), brackets['curly'], brackets['angle']
         out = re.sub(r'==[=]*','', out)
         out = re.sub(r"''[']*",'', out)
-        out = re.sub(r'^#.*?$','', out, flags = re.MULTILINE)            # drop lists
-        out = re.sub(r'^\*.*?$','', out, flags = re.MULTILINE)           # drop lists
+        #out = re.sub(r'^#.*?$','', out, flags = re.MULTILINE)            # drop lists
+        #out = re.sub(r'^\*.*?$','', out, flags = re.MULTILINE)           # drop lists
         out = re.sub(r'\[\[Kategori:[^\]]+\]\]','', out)         # drop categories
         out = re.sub(r'\[\[[a-z]{2,3}:[^\]]+\]\]','', out)       # drop interwikis
         out = re.sub(r'(?<!\[)\[(?!\[)[^ ]+ [^\]]+\]','', out)   # drop external links
