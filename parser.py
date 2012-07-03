@@ -194,7 +194,9 @@ class DanmicholoParser(object):
         out = ''
 
         soup = BeautifulSoup(self.text, 'lxml')
-        souped = ''.join([unicode(q) for q in soup.findAll('p')[0].contents])
+        souped = ''.join([unicode(q) for q in soup.findAll('body')[0].contents])
+        souped = re.sub(r'<(?:/)?p>','', souped) # soup introduces paragraphs, so let's remove them
+
         for c in souped:
             
             #elif c == ']': brackets['square'] -= 1
@@ -226,7 +228,7 @@ class DanmicholoParser(object):
         #out = re.sub(r'^#.*?$','', out, flags = re.MULTILINE)            # drop lists
         #out = re.sub(r'^\*.*?$','', out, flags = re.MULTILINE)           # drop lists
         out = re.sub(r'\[\[Kategori:[^\]]+\]\]','', out)         # drop categories
-        out = re.sub(r'\[\[[a-z]{2,3}:[^\]]+\]\]','', out)       # drop interwikis
+        out = re.sub(r'\[\[[A-Za-z\-]+:[^\]]+\]\]','', out)       # drop interwikis and files
         out = re.sub(r'(?<!\[)\[(?!\[)[^ ]+ [^\]]+\]','', out)   # drop external links
         out = re.sub(r'\[\[(?:[^|\]]+\|)?([^\]]+)\]\]', '\\1', out)  # wikilinks as text, '[[Artikkel 1|artikkelen]]' -> 'artikkelen'
         
