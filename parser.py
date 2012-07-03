@@ -6,6 +6,7 @@ import re
 import sys, codecs
 from copy import copy
 from odict import odict # ordered dict (replace by OrderedDict on Python 3)
+from bs4 import BeautifulSoup
 
 
 class DanmicholoParseError(Exception):
@@ -190,7 +191,10 @@ class DanmicholoParser(object):
         brackets = { 'round' : 0, 'square': 0, 'curly': 0, 'angle': 0 }
         intag = False
         out = ''
-        for c in self.text:
+
+        soup = BeautifulSoup(self.text)
+        souped = ''.join([unicode(q) for q in soup.findAll('p')[0].contents])
+        for c in souped:
             
             #elif c == ']': brackets['square'] -= 1
             #elif c == '}': brackets['curly'] -= 1
@@ -212,14 +216,17 @@ class DanmicholoParser(object):
             elif brackets['curly'] == 0 and brackets['angle'] == 0 and intag == False:
                 out += c
 
+        #print len(out), brackets['curly'], brackets['angle']
         out = re.sub(r'==[=]*','', out)
         out = re.sub(r"''[']*",'', out)
+        out = re.sub(r'^#.*?$','', out, flags = re.MULTILINE)            # drop lists
+        out = re.sub(r'^\*.*?$','', out, flags = re.MULTILINE)           # drop lists
         out = re.sub(r'\[\[Kategori:[^\]]+\]\]','', out)         # drop categories
         out = re.sub(r'\[\[[a-z]{2,3}:[^\]]+\]\]','', out)       # drop interwikis
         out = re.sub(r'(?<!\[)\[(?!\[)[^ ]+ [^\]]+\]','', out)   # drop external links
         out = re.sub(r'\[\[(?:[^|\]]+\|)?([^\]]+)\]\]', '\\1', out)  # wikilinks as text, '[[Artikkel 1|artikkelen]]' -> 'artikkelen'
         
-        self._maintext = out
+        self._maintext = out.strip()
         
         #if intag:
         #    raise DanmicholoParseError('Non-closed html tag encountered!')
@@ -255,7 +262,7 @@ class DanmicholoParser(object):
         state = ''
         starttag = ''
         tagcontent = ''
-        for c in self.text:
+        for i,c in enumerate(self.text):
             if state == 'starttag' and c == '>':
                 state = 'intag'
             elif state == 'comment' and c == '>':
