@@ -193,7 +193,7 @@ class DanmicholoParser(object):
         intag = False
         out = ''
 
-        soup = BeautifulSoup(self.text)
+        soup = BeautifulSoup(self.text, 'lxml')
         souped = ''.join([unicode(q) for q in soup.findAll('p')[0].contents])
         for c in souped:
             
