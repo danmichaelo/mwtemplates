@@ -236,8 +236,8 @@ class DanmicholoParser(object):
         
         #if intag:
         #    raise DanmicholoParseError('Non-closed html tag encountered!')
-        #if brackets['curly'] != 0:
-        #    raise DanmicholoParseError('Unbalanced curly brackets encountered!')
+        if brackets['curly'] != 0:
+            raise DanmicholoParseError('Unbalanced curly brackets encountered!')
 
         return out
 
