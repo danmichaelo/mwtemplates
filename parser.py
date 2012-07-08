@@ -197,6 +197,7 @@ class DanmicholoParser(object):
         souped = ''.join([unicode(q) for q in soup.findAll('body')[0].contents])
         souped = re.sub(r'<(?:/)?p>','', souped) # soup introduces paragraphs, so let's remove them
 
+        last = ''
         for c in souped:
             
             #elif c == ']': brackets['square'] -= 1
@@ -206,12 +207,18 @@ class DanmicholoParser(object):
             #elif c == '[': brackets['square'] += 1
 
             if c == '}': 
-                brackets['curly'] -= 1
-                if brackets['angle'] > 0:
-                    brackets['angle'] = 0
-                    intag = False
+                if last == '}':
+                    brackets['curly'] -= 2
+                    if brackets['angle'] > 0:
+                        brackets['angle'] = 0
+                        intag = False
+                    if brackets['curly'] < 0:
+                        # be nice and understanding
+                        brackets['curly'] = 0
+
             elif c == '{': 
-                brackets['curly'] += 1
+                if last == '{':
+                    brackets['curly'] += 2
             elif c == '>': 
                 brackets['angle'] -= 1
             elif c == '<': 
@@ -221,6 +228,7 @@ class DanmicholoParser(object):
                 intag = False
             elif brackets['curly'] == 0 and brackets['angle'] == 0 and intag == False:
                 out += c
+            last = c
 
         #print len(out), brackets['curly'], brackets['angle']
         out = re.sub(r'==[=]*','', out)
