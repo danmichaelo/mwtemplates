@@ -207,17 +207,23 @@ class DanmicholoParser(object):
             #elif c == '[': brackets['square'] += 1
 
             if c == '}': 
+                if last == '|':
+                    brackets['curly'] -= 1
                 if last == '}':
                     brackets['curly'] -= 2
                     if brackets['angle'] > 0:
                         brackets['angle'] = 0
                         intag = False
-                    if brackets['curly'] < 0:
-                        # be nice and understanding
-                        brackets['curly'] = 0
+                if brackets['curly'] < 0:
+                    # be nice and understanding
+                    brackets['curly'] = 0
 
+            elif c == '|' and last == '{':
+                # we entered a table
+                brackets['curly'] += 1
             elif c == '{': 
                 if last == '{':
+                    # we entered a template
                     brackets['curly'] += 2
             elif c == '>': 
                 brackets['angle'] -= 1
@@ -236,9 +242,10 @@ class DanmicholoParser(object):
         out = re.sub(r'^#.*?$','', out, flags = re.MULTILINE)            # drop lists
         out = re.sub(r'^\*.*?$','', out, flags = re.MULTILINE)           # drop lists
         out = re.sub(r'\[\[Kategori:[^\]]+\]\]','', out)         # drop categories
-        out = re.sub(r'\[\[[A-Za-z\-]+:[^\]]+\]\]','', out)       # drop interwikis and files
         out = re.sub(r'(?<!\[)\[(?!\[)[^ ]+ [^\]]+\]','', out)   # drop external links
-        out = re.sub(r'\[\[(?:[^|\]]+\|)?([^\]]+)\]\]', '\\1', out)  # wikilinks as text, '[[Artikkel 1|artikkelen]]' -> 'artikkelen'
+        out = re.sub(r'\[\[(?:[^:|\]]+\|)?([^:\]]+)\]\]', '\\1', out)  # wikilinks as text, '[[Artikkel 1|artikkelen]]' -> 'artikkelen'
+        out = re.sub(r'\[\[(?:Fil|File|Image|Bilde):[^\]]+\|([^\]]+)\]\]', '\\1', out)  # image descriptions only
+        out = re.sub(r'\[\[[A-Za-z\-]+:[^\]]+\]\]','', out)       # drop interwikis
         
         self._maintext = out.strip()
         
