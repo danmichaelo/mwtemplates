@@ -194,7 +194,10 @@ class DanmicholoParser(object):
         out = ''
 
         soup = BeautifulSoup(self.text, 'lxml')
-        souped = ''.join([unicode(q) for q in soup.findAll('body')[0].contents])
+        bd = soup.findAll('body')
+        if len(bd) == 0:
+            return ''
+        souped = ''.join([unicode(q) for q in bd[0].contents])
         souped = re.sub(r'<(?:/)?p>','', souped) # soup introduces paragraphs, so let's remove them
 
         last = ''
