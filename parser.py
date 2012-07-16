@@ -8,6 +8,26 @@ from copy import copy
 from odict import odict # ordered dict (replace by OrderedDict on Python 3)
 from bs4 import BeautifulSoup
 
+def condition_for_soup(text):
+    """
+    While BeautifulSoup and its parsers are robust, (unknown) tags with unquoted arguments seems to be an issue.
+
+    Let's first define a function to make things clearer:
+    >>> def f(str):
+    >>>     return ''.join([unicode(tag) for tag in BeautifulSoup(str, 'lxml').findAll('body')[0].contents])
+
+    Now, here is an unexpected result: the ref-tag is not read as closed and continue to eat the remaining text!
+    >>> f('<ref name=XYZ/>Mer tekst her')
+    <<< u'<ref name="XYZ/">Mer tekst her</ref>'
+
+    Add a space before / and we get the expected result:
+    >>> f('<ref name=XYZ />Mer tekst her')
+    <<< u'<ref name="XYZ"></ref>Mer tekst her'
+
+    Therefore we should condition the text before sending it to BS
+    """
+    return re.sub(r'name\s?=\s?([^"\s]+)/>', 'name=\1 />', text)
+
 
 class DanmicholoParseError(Exception):
 
@@ -209,7 +229,7 @@ class DanmicholoParser(object):
         intag = False
         out = ''
 
-        soup = BeautifulSoup(self.text, 'lxml')
+        soup = BeautifulSoup(condition_for_soup(self.text), 'lxml')
         bd = soup.findAll('body')
         if len(bd) == 0:
             return ''
@@ -217,6 +237,8 @@ class DanmicholoParser(object):
         souped = re.sub(r'<(?:/)?p>','', souped) # soup introduces paragraphs, so let's remove them
 
         last = ''
+
+        #print souped
         for c in souped:
             storelast = True
             
@@ -233,9 +255,9 @@ class DanmicholoParser(object):
                     brackets['curly'] -= 2
                     last = ''
                     storelast = False
-                    if brackets['angle'] > 0:
-                        brackets['angle'] = 0
-                        intag = False
+                    #if brackets['angle'] > 0:
+                    #    brackets['angle'] = 0
+                    #    intag = False
                 if brackets['curly'] < 0:
                     # be nice and understanding
                     brackets['curly'] = 0
@@ -251,9 +273,13 @@ class DanmicholoParser(object):
                     storelast = False
             elif c == '>': 
                 brackets['angle'] -= 1
+                #print 'E: '+last + c, brackets['angle']
             elif c == '<': 
                 brackets['angle'] += 1
                 intag = True
+                #print 'S: '+last + c, brackets['angle']
+            elif last == '<' and c == '!':
+                intag = False
             elif brackets['angle'] == 1 and c == '/':
                 intag = False
             elif brackets['curly'] == 0 and brackets['angle'] == 0 and intag == False:
@@ -274,8 +300,8 @@ class DanmicholoParser(object):
         
         self._maintext = out.strip()
         
-        #if intag:
-        #    raise DanmicholoParseError('Non-closed html tag encountered!')
+        if intag:
+            raise DanmicholoParseError('Non-closed html tag encountered (%d)!'%brackets['angle'])
         if brackets['curly'] != 0:
             raise DanmicholoParseError('Unbalanced curly brackets encountered!')
 
