@@ -303,7 +303,7 @@ class DanmicholoParser(object):
         if intag:
             raise DanmicholoParseError('Non-closed html tag encountered (%d)!'%brackets['angle'])
         if brackets['curly'] != 0:
-            raise DanmicholoParseError('Unbalanced curly brackets encountered!')
+            raise DanmicholoParseError('Unbalanced curly brackets encountered (%d)!'%brackets['curly'])
 
         return out
 
