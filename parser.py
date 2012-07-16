@@ -173,7 +173,7 @@ class DanmicholoParser(object):
             elif c == '<': brackets['angle'] += 1
 
         if brackets['curly'] != 0:
-            raise DanmicholoParseError('Unbalanced curly brackets encountered!')
+            raise DanmicholoParseError('Unbalanced curly brackets encountered (%d)!' % brackets['curly'])
         
         if debug:
             print "%s  return %d templates" % (spaces,len(templates))
