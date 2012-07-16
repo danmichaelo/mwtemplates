@@ -193,8 +193,14 @@ class DanmicholoParser(object):
         intag = False
         out = ''
 
-        soup = BeautifulSoup(self.text)
-        souped = ''.join([unicode(q) for q in soup.findAll('p')[0].contents])
+        soup = BeautifulSoup(self.text, 'lxml')
+        bd = soup.findAll('body')
+        if len(bd) == 0:
+            return ''
+        souped = ''.join([unicode(q) for q in bd[0].contents])
+        souped = re.sub(r'<(?:/)?p>','', souped) # soup introduces paragraphs, so let's remove them
+
+        last = ''
         for c in souped:
             
             #elif c == ']': brackets['square'] -= 1
@@ -204,12 +210,24 @@ class DanmicholoParser(object):
             #elif c == '[': brackets['square'] += 1
 
             if c == '}': 
-                brackets['curly'] -= 1
-                if brackets['angle'] > 0:
-                    brackets['angle'] = 0
-                    intag = False
-            elif c == '{': 
+                if last == '|':
+                    brackets['curly'] -= 1
+                if last == '}':
+                    brackets['curly'] -= 2
+                    if brackets['angle'] > 0:
+                        brackets['angle'] = 0
+                        intag = False
+                if brackets['curly'] < 0:
+                    # be nice and understanding
+                    brackets['curly'] = 0
+
+            elif c == '|' and last == '{':
+                # we entered a table
                 brackets['curly'] += 1
+            elif c == '{': 
+                if last == '{':
+                    # we entered a template
+                    brackets['curly'] += 2
             elif c == '>': 
                 brackets['angle'] -= 1
             elif c == '<': 
@@ -219,23 +237,25 @@ class DanmicholoParser(object):
                 intag = False
             elif brackets['curly'] == 0 and brackets['angle'] == 0 and intag == False:
                 out += c
+            last = c
 
         #print len(out), brackets['curly'], brackets['angle']
         out = re.sub(r'==[=]*','', out)
         out = re.sub(r"''[']*",'', out)
-        #out = re.sub(r'^#.*?$','', out, flags = re.MULTILINE)            # drop lists
-        #out = re.sub(r'^\*.*?$','', out, flags = re.MULTILINE)           # drop lists
+        out = re.sub(r'^#.*?$','', out, flags = re.MULTILINE)            # drop lists
+        out = re.sub(r'^\*.*?$','', out, flags = re.MULTILINE)           # drop lists
         out = re.sub(r'\[\[Kategori:[^\]]+\]\]','', out)         # drop categories
-        out = re.sub(r'\[\[[a-z]{2,3}:[^\]]+\]\]','', out)       # drop interwikis
         out = re.sub(r'(?<!\[)\[(?!\[)[^ ]+ [^\]]+\]','', out)   # drop external links
-        out = re.sub(r'\[\[(?:[^|\]]+\|)?([^\]]+)\]\]', '\\1', out)  # wikilinks as text, '[[Artikkel 1|artikkelen]]' -> 'artikkelen'
+        out = re.sub(r'\[\[(?:[^:|\]]+\|)?([^:\]]+)\]\]', '\\1', out)  # wikilinks as text, '[[Artikkel 1|artikkelen]]' -> 'artikkelen'
+        out = re.sub(r'\[\[(?:Fil|File|Image|Bilde):[^\]]+\|([^\]]+)\]\]', '\\1', out)  # image descriptions only
+        out = re.sub(r'\[\[[A-Za-z\-]+:[^\]]+\]\]','', out)       # drop interwikis
         
         self._maintext = out.strip()
         
         #if intag:
         #    raise DanmicholoParseError('Non-closed html tag encountered!')
-        #if brackets['curly'] != 0:
-        #    raise DanmicholoParseError('Unbalanced curly brackets encountered!')
+        if brackets['curly'] != 0:
+            raise DanmicholoParseError('Unbalanced curly brackets encountered!')
 
         return out
 
