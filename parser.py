@@ -117,7 +117,7 @@ class DanmicholoParser(object):
 
         spaces = ''.join([' ' for i in range(level)])
         if debug:
-            print "%s> scan (offset = %d, length = %d)" % (spaces, start, len(text))
+            print "%s> scan (offset = %d, length = %d, txt = \"%s\")" % (spaces, start, len(text), text)
             #print spaces +"  "+text
 
         # We should keep track of all brackets, so we don't split inside a bracketed part:
@@ -126,16 +126,23 @@ class DanmicholoParser(object):
         intemplate = -1
         tmp = ''
         p = start - 1
+        prev = ''
         for c in text:
             p += 1
+            storeprev = True
             if c == ')': brackets['round'] -= 1
             elif c == ']': brackets['square'] -= 1
-            elif c == '}': brackets['curly'] -= 1
+            elif prev == '}' and c == '}': 
+                if debug:
+                    print p,'}}'
+                brackets['curly'] -= 2
+                prev = ''
+                storeprev = False
             elif c == '>': brackets['angle'] -= 1
             
             if intemplate != -1 and brackets['curly'] < 2:
-                templates[intemplate]['end'] = p + 2
-                templates[intemplate]['splits'].append(tmp)
+                templates[intemplate]['end'] = p + 1
+                templates[intemplate]['splits'].append(tmp[:-1]) # skip ending }
                 #templates[intemplate]['splits'] = map(self.clean_p, templates[intemplate]['splits'])
                 #print templates[-1]['splits']
                 navn = templates[intemplate]['splits'].pop(0).strip('{')
@@ -169,8 +176,17 @@ class DanmicholoParser(object):
 
             if c == '(':   brackets['round'] += 1
             elif c == '[': brackets['square'] += 1
-            elif c == '{': brackets['curly'] += 1
+            elif prev == '{' and c == '{': 
+                if debug:
+                    print p,'{{'
+                brackets['curly'] += 2
+                storeprev = False
+                prev = ''
+                
             elif c == '<': brackets['angle'] += 1
+
+            if storeprev:
+                prev = c
 
         if brackets['curly'] != 0:
             raise DanmicholoParseError('Unbalanced curly brackets encountered (%d)!' % brackets['curly'])
@@ -202,6 +218,7 @@ class DanmicholoParser(object):
 
         last = ''
         for c in souped:
+            storelast = True
             
             #elif c == ']': brackets['square'] -= 1
             #elif c == '}': brackets['curly'] -= 1
@@ -214,6 +231,8 @@ class DanmicholoParser(object):
                     brackets['curly'] -= 1
                 if last == '}':
                     brackets['curly'] -= 2
+                    last = ''
+                    storelast = False
                     if brackets['angle'] > 0:
                         brackets['angle'] = 0
                         intag = False
@@ -228,6 +247,8 @@ class DanmicholoParser(object):
                 if last == '{':
                     # we entered a template
                     brackets['curly'] += 2
+                    last = ''
+                    storelast = False
             elif c == '>': 
                 brackets['angle'] -= 1
             elif c == '<': 
@@ -237,7 +258,8 @@ class DanmicholoParser(object):
                 intag = False
             elif brackets['curly'] == 0 and brackets['angle'] == 0 and intag == False:
                 out += c
-            last = c
+            if storelast:
+                last = c
 
         #print len(out), brackets['curly'], brackets['angle']
         out = re.sub(r'==[=]*','', out)
