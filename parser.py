@@ -26,13 +26,19 @@ def condition_for_soup(text):
 
     Therefore we should condition the text before sending it to BS
     """
-    return re.sub(r'name\s?=\s?([^"\s]+)/>', 'name=\1 />', text)
+    text = re.sub(r'<ref ([^>]+)=\s?([^"\s]+)/>', r'<ref \1=\2 />', text)
+
+    # strip whitespace at beginning of lines, as it makes finding tables harder
+    text = re.sub(r'\n[\s]+', r'\n', text)
+
+    return text
 
 
 class DanmicholoParseError(Exception):
 
     def __init__(self, msg):
         self.msg = msg
+        self.parse_errors = []
 
 
 class DpTemplate(object):
@@ -218,92 +224,159 @@ class DanmicholoParser(object):
     @property
     def maintext(self):
 
+        debug = False
+        self.parse_errors = []
+
         # use cached value if available
         try:
             return self._maintext
         except:
             pass
 
-        # We should keep track of all brackets, so we don't split inside a bracketed part:
-        brackets = { 'round' : 0, 'square': 0, 'curly': 0, 'angle': 0 }
-        intag = False
         out = ''
 
+        # BeautifulSoup (BS) will cleanup the html to make it more readable, e.g. turning <br> into <br/>,
+        # closing unclosed tags (not necessarily at the "right" place though) and so on
         soup = BeautifulSoup(condition_for_soup(self.text), 'lxml')
         bd = soup.findAll('body')
         if len(bd) == 0:
             return ''
         souped = ''.join([unicode(q) for q in bd[0].contents])
-        souped = re.sub(r'<(?:/)?p>','', souped) # soup introduces paragraphs, so let's remove them
 
-        last = ''
+        # BS introduces paragraphs, so let's remove them
+        souped = re.sub(r'<(?:/)?p>','', souped) 
 
-        #print souped
-        for c in souped:
-            storelast = True
-            
-            #elif c == ']': brackets['square'] -= 1
-            #elif c == '}': brackets['curly'] -= 1
-            #elif c == '>': brackets['angle'] -= 1
-            #elif c == '(':   brackets['round'] += 1
-            #elif c == '[': brackets['square'] += 1
+        if debug:
+            f = open('soup.dump','w')
+            f.write(souped.encode('utf-8'))
+            f.close()
 
-            if c == '}': 
-                if last == '|':
-                    brackets['curly'] -= 1
-                if last == '}':
-                    brackets['curly'] -= 2
-                    last = ''
-                    storelast = False
-                    #if brackets['angle'] > 0:
-                    #    brackets['angle'] = 0
-                    #    intag = False
-                if brackets['curly'] < 0:
-                    # be nice and understanding
-                    brackets['curly'] = 0
+        buf = '00'       # keep track of last two characters
+        ptree = ['top']  # simple parse tree
+        closing = ''     # just for debugging
 
-            elif c == '|' and last == '{':
-                # we entered a table
-                brackets['curly'] += 1
-            elif c == '{': 
-                if last == '{':
-                    # we entered a template
-                    brackets['curly'] += 2
-                    last = ''
-                    storelast = False
-            elif c == '>': 
-                brackets['angle'] -= 1
-                #print 'E: '+last + c, brackets['angle']
-            elif c == '<': 
-                brackets['angle'] += 1
-                intag = True
-                #print 'S: '+last + c, brackets['angle']
-            elif last == '<' and c == '!':
-                intag = False
-            elif brackets['angle'] == 1 and c == '/':
-                intag = False
-            elif brackets['curly'] == 0 and brackets['angle'] == 0 and intag == False:
-                out += c
-            if storelast:
-                last = c
+        for i,c in enumerate(souped):
+            try:
 
-        #print len(out), brackets['curly'], brackets['angle']
-        out = re.sub(r'==[=]*','', out)
-        out = re.sub(r"''[']*",'', out)
-        out = re.sub(r'^#.*?$','', out, flags = re.MULTILINE)            # drop lists
-        out = re.sub(r'^\*.*?$','', out, flags = re.MULTILINE)           # drop lists
-        out = re.sub(r'\[\[Kategori:[^\]]+\]\]','', out)         # drop categories
-        out = re.sub(r'(?<!\[)\[(?!\[)[^ ]+ [^\]]+\]','', out)   # drop external links
-        out = re.sub(r'\[\[(?:[^:|\]]+\|)?([^:\]]+)\]\]', '\\1', out)  # wikilinks as text, '[[Artikkel 1|artikkelen]]' -> 'artikkelen'
+                if (buf[1] == '\n' or buf[1] == '0') and buf[0] == '{' and c == '|':
+                    # we entered a table
+                    ptree.append('table')
+                    if debug:
+                        print '%5d:'%i + '%-10s' % (''.join([' ' for s in range(len(ptree)-1)]) + '{|') + souped[i-1:i+10].replace('\n','\\n')
+
+                elif buf[1] == '\n' and buf[0] == '|' and c == '}':
+                    # we may have left a table (but we may also have met |}} at the end of a template)
+                    if 'table' in ptree:
+                        if debug:
+                            print '%5d:'%i + '%-10s' % (''.join([' ' for s in range(len(ptree)-1)]) + '|}') + souped[i-10:i+1].replace('\n','\\n')
+                        closing = 'table'
+                        while ptree.pop() != 'table':
+                            pass
+                
+                elif c == '}': 
+                    if buf[0] == '}':
+                        # we left a template
+                        if ptree[-1] == 'template':
+                            if debug:
+                                print '%5d:'%i + '%-10s' % (''.join([' ' for s in range(len(ptree)-1)]) + '}}') + souped[i-10:i+1].replace('\n','\\n')
+                            ptree.pop()
+                        else:
+                            if debug:
+                                print "Found extra set of }}s"
+                            self.parse_errors.append('Found extra set of }}s: "' + souped[i-10:i+10] + '"')
+                            
+                        buf = '00' # clear buffer to avoid }}} triggering }} twice
+                        continue
+
+                elif c == '{': 
+                    if buf[0] == '{':
+                        # we entered a template
+                        ptree.append('template')
+                        if debug:
+                            print '%5d:'%i + '%-10s' % (''.join([' ' for s in range(len(ptree)-1)]) + '{{') + souped[i-1:i+10].replace('\n','\\n')
+                        
+                        buf = '00' # clear buffer to avoid {{{ triggering {{ twice
+                        continue
+
+                elif c == '>': 
+                    if buf[0] == '/':
+                        # start tag is also end tag (like <br/>)
+                        if debug:
+                            print '%5d:'%i + '%-10s' % (''.join([' ' for s in range(len(ptree)-1)]) + '/>') + souped[i-3:i+1].replace('\n','\\n')
+                        closing = 'starttag'
+                        while ptree.pop() != 'starttag':
+                            pass
+
+                    elif ptree[-1] == 'starttag':
+                        # we left a starttag
+                        ptree.pop()
+                        ptree.append('intag')
+                        if debug:
+                            print '%5d:'%i + '%-10s' % (''.join([' ' for s in range(len(ptree)-1)]) + '>') + souped[i-10:i+1].replace('\n','\\n')
+
+                    else:
+                        # we left an endtag
+                        if debug:
+                            print '%5d:'%i + '%-10s' % (''.join([' ' for s in range(len(ptree)-1)]) + '</...>') + souped[i-10:i+1].replace('\n','\\n')
+                        closing = 'endtag/comment'
+                        while ptree.pop() not in ('endtag','comment'):
+                            pass
+
+
+                elif buf[0] == '<':
+                    if c == '!':
+                        # we entered a comment
+                        ptree.append('comment')
+                        if debug:
+                            print '%5d:'%i + '%-10s' %(''.join([' ' for s in range(len(ptree)-1)]) + '<!') + souped[i-1:i+10].replace('\n','\\n')
+                    elif c == '/':
+                        # we entered an end tag
+                        if 'intag' in ptree:
+                            closing = 'intag'
+                            while ptree.pop() != 'intag':
+                                pass
+                        else:
+                            if debug:
+                                print 'WARNING: %5d:'%i + 'Found end tag without matching start tag' + souped[i-1:i+10].replace('\n','\\n')
+                                print "Found end tag without a matching start tag!" + souped[i-1:i+10].replace('\n','\\n')
+                            self.parse_errors.append('Extra (non-matching) end-tag encountered: "' + souped[i-10:i+10] + '". This may have been inserted to compensate for a missing end-tag.')
+                        
+                        ptree.append('endtag')
+
+                    else:
+                        # we entered a start tag
+                        ptree.append('starttag')
+                        if debug:
+                            print '%5d:'%i  + '%-10s' %(''.join([' ' for s in range(len(ptree)-1)]) + '<') + souped[i-1:i+10].replace('\n','\\n')
+
+                elif c == '<':
+                    pass
+
+                elif len(ptree) == 1:
+                    out += c
+
+                buf = c + buf[0]
+
+            except IndexError as e:
+                # Last stance... most "normal" errors should just be added to self.parse_errors
+                if debug:
+                    print 'ERROR: Syntax error: Found end of %s near %d, but no start!'%(closing,i)
+                raise DanmicholoParseError('Syntax error: Found end of %s near %d, but no start!'%(closing,i))
+        
+        if len(ptree) != 1:
+            raise DanmicholoParseError('Syntax error: %s was not closed!'%ptree[-1])
+
+        out = re.sub(r'==[=]*','', out)                                 # drop header markers (but keep header text)
+        out = re.sub(r"''[']*",'', out)                                 # drop bold/italic markers (but keep text)
+        out = re.sub(r'^#.*?$','', out, flags = re.MULTILINE)           # drop lists altogether
+        out = re.sub(r'^\*.*?$','', out, flags = re.MULTILINE)          # drop lists altogether
+        out = re.sub(r'\[\[Kategori:[^\]]+\]\]','', out)                # drop categories
+        out = re.sub(r'(?<!\[)\[(?!\[)[^ ]+ [^\]]+\]','', out)          # drop external links
+        out = re.sub(r'\[\[(?:[^:|\]]+\|)?([^:\]]+)\]\]', '\\1', out)   # wikilinks as text, '[[Artikkel 1|artikkelen]]' -> 'artikkelen'
         out = re.sub(r'\[\[(?:Fil|File|Image|Bilde):[^\]]+\|([^\]]+)\]\]', '\\1', out)  # image descriptions only
-        out = re.sub(r'\[\[[A-Za-z\-]+:[^\]]+\]\]','', out)       # drop interwikis
+        out = re.sub(r'\[\[[A-Za-z\-]+:[^\]]+\]\]','', out)             # drop interwikis
         
         self._maintext = out.strip()
-        
-        if intag:
-            raise DanmicholoParseError('Non-closed html tag encountered (%d)!'%brackets['angle'])
-        if brackets['curly'] != 0:
-            raise DanmicholoParseError('Unbalanced curly brackets encountered (%d)!'%brackets['curly'])
 
         return out
 
