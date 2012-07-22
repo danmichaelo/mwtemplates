@@ -463,7 +463,8 @@ class DanmicholoParser(object):
         except:
             pass
         
-        templates = self.scan_for_templates(self.text)
+        txt = re.sub('<nowiki>.+?</nowiki>', '', self.text)
+        templates = self.scan_for_templates(txt)
         
         self._templates = odict()
 
