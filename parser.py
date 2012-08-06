@@ -194,7 +194,7 @@ class DanmicholoParser(object):
                 intemplate = len(templates)-1
                 tmp = ''
 
-            if intemplate != -1 and c == '|' and brackets['round'] == brackets['square'] == brackets['angle'] == 0 and brackets['curly'] == 2:
+            if intemplate != -1 and c == '|' and brackets['square'] == brackets['angle'] == 0 and brackets['curly'] == 2:
                 templates[intemplate]['splits'].append(tmp)
                 tmp = ''
             else:
@@ -282,7 +282,10 @@ class DanmicholoParser(object):
                             ptree.pop()
                         else:
                             if debug:
-                                print "Found extra set of }}s"
+                                print '%5d:'%i + '%-10s' % (''.join([' ' for s in range(len(ptree)-1)]) + 'Extra set of }}s!') \
+                                        + souped[i-10:i+1].replace('\n','\\n') + 'Parse tree: ' + ','.join(ptree)
+
+                                #print "Found extra set of }}s"
                             self.parse_errors.append('Found extra set of }}s: "' + souped[i-10:i+10] + '"')
                             
                         buf = '00' # clear buffer to avoid }}} triggering }} twice
