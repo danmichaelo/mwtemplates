@@ -504,7 +504,7 @@ class DanmicholoParser(object):
                 if t.modified():
                     if mod > 0:
                         raise StandardError("Uh oh, can only handle one modification a time")
-                    txt = txt[:t.begin] + t.getwikitext() + txt[t.end+1:]
+                    txt = txt[:t.begin] + t.getwikitext() + txt[t.end:]
                     mod += 1
                 #print t.begin
         return txt
