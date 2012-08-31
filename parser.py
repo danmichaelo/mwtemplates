@@ -44,14 +44,21 @@ class DanmicholoParseError(Exception):
 class DpTemplate(object):
 
     def getwhitespace(self, txt):
+
         left = ''
+        # find whitespace to the left of the parameter
         rl = re.search('^([\s])+', txt)
         if rl:
             left = rl.group(0)
         right = ''
-        rl = re.search('([\s])+$', txt)
-        if rl:
-            right= rl.group(0)
+
+        rall = re.search('^([\s])+$', txt)
+        # unless the entire parameter is whitespace 
+        if not rall:
+            # find whitespace to the right of the parameter
+            rl = re.search('([\s])+$', txt)
+            if rl:
+                right= rl.group(0)
         return (left, right)
 
     def __init__(self, obj):
@@ -75,6 +82,7 @@ class DpTemplate(object):
             s = s.split('=',1)
             #[q.strip() for q in s.split('=',1)]
             if len(s) == 1:
+                # Anonymous parameter:
                 #wspaceb = re.search('^([\s])+',s[0])
                 #wspacee = re.search('([\s])+$',s[0])
                 self.parameters[pno] = s[0].strip()
@@ -82,9 +90,10 @@ class DpTemplate(object):
                 self._paramspace[pno] = self.getwhitespace(s[0])
                 pno += 1
             elif len(s) == 2:
+                # Named parameter:
                 #wspacee = re.search('([\s])+$',s[1]).group(0)
                 self.parameters[s[0].strip()] = s[1].strip()
-                self._paramnames[s[0].strip()] = s[0]  # original, unstripped
+                self._paramnames[s[0].strip()] = s[0]  # save the original, unstripped form
                 self._paramspace[s[0].strip()] = self.getwhitespace(s[1])
             else:
                 raise DanmicholoParseError("Wrong len %d in %s " % (len(s), s))
@@ -148,6 +157,7 @@ class DanmicholoParser(object):
 
         # We should keep track of all brackets, so we don't split inside a bracketed part:
         brackets = { 'round' : 0, 'square': 0, 'curly': 0, 'angle': 0 }
+        brackets_before = { 'square': 0, 'angle': 0 }
         templates = []
         intemplate = -1
         tmp = ''
@@ -192,9 +202,10 @@ class DanmicholoParser(object):
                 #    print spaces +"  Template start at ",c
                 templates.append({'begin':p-2, 'end':-1, 'splits':[]})
                 intemplate = len(templates)-1
+                brackets_before = brackets.copy()
                 tmp = ''
 
-            if intemplate != -1 and c == '|' and brackets['square'] == brackets['angle'] == 0 and brackets['curly'] == 2:
+            if intemplate != -1 and c == '|' and brackets['square'] == brackets_before['square'] and brackets['angle'] == brackets_before['angle'] and brackets['curly'] == 2:
                 templates[intemplate]['splits'].append(tmp)
                 tmp = ''
             else:
