@@ -109,13 +109,28 @@ class DpTemplate(object):
 
     def getwikitext(self):
         tmp = '{{'+self.name
+
         for p in self.parameters:
-            pnam = self._paramnames[p]
-            sp = self._paramspace[p] 
-            if pnam == '':
-                tmp += '|' + sp[0] + self.parameters[p] + sp[1]
+
+            if p not in self._paramnames:
+                # this is a new parameter, added during runtime
+                tmp += '|' + p + '=' + self.parameters[p]
+
             else:
-                tmp += '|' + pnam+ '=' + sp[0] + self.parameters[p] + sp[1]
+
+                # The parameter key 'p' have surrounding whitespace stripped off for easy lookup, 
+                # but the original form is preserved in self._paramnames[p]
+                pnam = self._paramnames[p]  
+
+                # we've also saved the whitespace surround the parameter value:
+                sp = self._paramspace[p]
+
+                if pnam == '':
+                    # anonymous parameter:
+                    tmp += '|' + sp[0] + self.parameters[p] + sp[1]
+                else:
+                    # named parameter:
+                    tmp += '|' + pnam+ '=' + sp[0] + self.parameters[p] + sp[1]
         tmp += '}}'
         return tmp
     
