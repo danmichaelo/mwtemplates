@@ -18,4 +18,5 @@ pip-log.txt
 
 # Other
 *.swp
+*.log
 .DS_Store
