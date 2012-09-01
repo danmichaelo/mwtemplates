@@ -7,11 +7,6 @@ from maintext import MainText
 import logging
 logger = logging.getLogger(__name__)
 
-class DanmicholoParseError(Exception):
-
-    def __init__(self, msg):
-        self.msg = msg
-        self.parse_errors = []
 
 class DanmicholoParser(TemplateEditor, MainText):
 

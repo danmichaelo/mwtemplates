@@ -5,6 +5,7 @@ import re
 import sys, codecs
 from copy import copy
 from odict import odict # ordered dict (replace by OrderedDict on Python 3)
+from danmicholoparser import DanmicholoParseError
 
 import logging
 logger = logging.getLogger(__name__)
@@ -26,13 +27,6 @@ def getwhitespace(txt):
         if rl:
             right = rl.group(0)
     return (left, right)
-
-class DanmicholoParseError(Exception):
-
-    def __init__(self, msg):
-        self.msg = msg
-        self.parse_errors = []
-
 
 class DpTemplate(object):
     """ A single template instance """
