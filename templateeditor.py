@@ -64,9 +64,16 @@ class DpTemplate(object):
             elif len(s) == 2:
                 # Named parameter:
                 #wspacee = re.search('([\s])+$',s[1]).group(0)
-                self.parameters[s[0].strip()] = s[1].strip()
-                self._paramnames[s[0].strip()] = s[0]  # save the original, unstripped form
-                self._paramspace[s[0].strip()] = getwhitespace(s[1])
+                sname = s[0].strip()
+                if sname in self.parameters:
+                    if self.parameters[sname] == s[1].strip():
+                        logger.warn('The same parameter "%s" was passed twice to a template "%s", but with the same value, so we can just chop off one')
+                    else:
+                        raise DanmicholoParseError('Ambigious: The same parameter "%s" was passed twice to a template "%s":\n\n%s' % (sname, self.name, self._txt))
+                else:
+                    self.parameters[sname] = s[1].strip()
+                    self._paramnames[sname] = s[0]  # save the original, unstripped form
+                    self._paramspace[sname] = getwhitespace(s[1])
             else:
                 raise DanmicholoParseError("Wrong len %d in %s " % (len(s), s))
     
@@ -126,9 +133,8 @@ class TemplateEditor(object):
     def __init__(self, text):
         self.text = text
         self.errors = []
-        
-    @property
-    def templates(self):
+
+    def get_templates(self):
         try:
             return self._templates
         except:
@@ -150,6 +156,9 @@ class TemplateEditor(object):
                 self._templates[k] = [dt]
 
         return self._templates
+    @property
+    def templates(self):
+        return self.get_templates()
 
     def clean_p(self,p):
         p = p.split('=',1)
@@ -165,7 +174,7 @@ class TemplateEditor(object):
 
         spaces = ''.join([' ' for i in range(level)])
 
-        logger.debug('%s> scan (offset = %d, length = %d, txt = "%s")', spaces, start, len(text), text)
+        logger.debug('%s> scan (offset = %d, length = %d)', spaces, start, len(text))
 
         # We should keep track of all brackets, so we don't split inside a bracketed part:
         brackets = { 'round' : 0, 'square': 0, 'curly': 0, 'angle': 0 }
