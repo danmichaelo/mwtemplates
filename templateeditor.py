@@ -10,7 +10,7 @@ from danmicholoparser import DanmicholoParseError
 import logging
 logger = logging.getLogger(__name__)
 
-def getwhitespace(txt):
+def get_whitespace(txt):
 
     left = ''
     # find whitespace to the left of the parameter
@@ -40,7 +40,7 @@ class DpTemplate(object):
         self.begin = obj['begin']
         self.end = obj['end']
         self.name = obj['name'].strip() # not lower-cased
-        self._name_ws = getwhitespace(obj['name']) # preserve surrounding whitespace
+        self._name_ws = get_whitespace(obj['name']) # preserve surrounding whitespace
         self._txt = obj['txt']
             
         # Filter out empty parameters:
@@ -59,7 +59,7 @@ class DpTemplate(object):
                 #wspacee = re.search('([\s])+$',s[0])
                 self.parameters[pno] = s[0].strip()
                 self._paramnames[pno] = ''
-                self._paramspace[pno] = getwhitespace(s[0])
+                self._paramspace[pno] = get_whitespace(s[0])
                 pno += 1
             elif len(s) == 2:
                 # Named parameter:
@@ -73,7 +73,7 @@ class DpTemplate(object):
                 else:
                     self.parameters[sname] = s[1].strip()
                     self._paramnames[sname] = s[0]  # save the original, unstripped form
-                    self._paramspace[sname] = getwhitespace(s[1])
+                    self._paramspace[sname] = get_whitespace(s[1])
             else:
                 raise DanmicholoParseError("Wrong len %d in %s " % (len(s), s))
     
@@ -93,11 +93,14 @@ class DpTemplate(object):
     def getwikitext(self):
         tmp = '{{' + self._name_ws[0] + self.name + self._name_ws[1]
 
+        prevsp = ['', ' ', ' ', '']
+
         for p in self.parameters:
 
             if p not in self._paramnames:
                 # this is a new parameter, added during runtime
-                tmp += '|' + p + '=' + self.parameters[p]
+                # we *try* to use the same whitespace convention as the previous parameter (indentation is not currently inherited)
+                tmp += '|' + prevsp[0] + p + prevsp[1] + '=' + prevsp[2] + self.parameters[p] + prevsp[3] 
 
             else:
 
@@ -111,9 +114,13 @@ class DpTemplate(object):
                 if pnam == '':
                     # anonymous parameter:
                     tmp += '|' + sp[0] + self.parameters[p] + sp[1]
+                    prevsp = [sp[0], ' ', ' ', sp[1]]
                 else:
                     # named parameter:
                     tmp += '|' + pnam+ '=' + sp[0] + self.parameters[p] + sp[1]
+                    w = get_whitespace(pnam)
+                    prevsp = [w[0], w[1], sp[0], sp[1]]
+
         tmp += '}}'
         return tmp
     
