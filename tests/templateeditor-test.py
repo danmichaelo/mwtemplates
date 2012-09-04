@@ -106,6 +106,12 @@ class TestTemplateEditor(unittest.TestCase):
         dp = TemplateEditor(text)
         self.assertRaises(DanmicholoParseError, dp.get_templates)
 
+    def test_ignorecomments(self):
+        # should not parse templates within comments
+        text = 'Lorem ipsum <!--{{flagg|no}}--> dolor sit amet'
+        dp = TemplateEditor(text)
+        self.assertEqual(len(dp.templates.keys()), 0)
+
 if __name__ == '__main__':
     unittest.main()
 

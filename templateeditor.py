@@ -190,65 +190,75 @@ class TemplateEditor(object):
         intemplate = -1
         tmp = ''
         p = start - 1
-        prev = ''
+        buf = '    '
+        incomment = False
         for c in text:
             p += 1
             storeprev = True
-            if c == ')': brackets['round'] -= 1
-            elif c == ']': brackets['square'] -= 1
-            elif prev == '}' and c == '}': 
-                logger.debug('[%s] }}', p)
-                brackets['curly'] -= 2
-                prev = ''
-                storeprev = False
-            elif c == '>': brackets['angle'] -= 1
             
-            if intemplate != -1 and brackets['curly'] < 2:
-                templates[intemplate]['end'] = p + 1
-                templates[intemplate]['splits'].append(tmp[:-1]) # skip ending }
-                #templates[intemplate]['splits'] = map(self.clean_p, templates[intemplate]['splits'])
-                #print templates[-1]['splits']
-                navn = templates[intemplate]['splits'].pop(0).strip('{')
-                templates[intemplate]['name'] = navn
-                templates[intemplate]['txt'] = text[templates[intemplate]['begin']-start:templates[intemplate]['end']-start]
-                #logger.debug(spaces+"  "+c,"end, Name="+templates[intemplate]['name'],templates[intemplate]['begin'],templates[intemplate]['end']
-
-                # Scan all splits for sub-templates:
-                offset = start + templates[intemplate]['begin'] + 2 + len(navn) + 1
-                #print offset
-                for s in templates[intemplate]['splits']:
-                    #print s
-                    templates = templates + self.scan_for_templates(s, level = level + 1, start = offset)
-                    offset += len(s) + 1
-                    #offset += 1 # for the pipe
-
-                intemplate = -1
-            elif intemplate == -1 and brackets['curly'] >= 2:
-                #if debug:
-                #    print spaces +"  Template start at ",c
-                templates.append({'begin':p-2, 'end':-1, 'splits':[]})
-                intemplate = len(templates)-1
-                brackets_before = brackets.copy()
-                tmp = ''
-
-            if intemplate != -1 and c == '|' and brackets['square'] == brackets_before['square'] and brackets['angle'] == brackets_before['angle'] and brackets['curly'] == 2:
-                templates[intemplate]['splits'].append(tmp)
-                tmp = ''
-            else:
-                tmp += c
-
-            if c == '(':   brackets['round'] += 1
-            elif c == '[': brackets['square'] += 1
-            elif prev == '{' and c == '{': 
-                logger.debug('[%s] {{', p)
-                brackets['curly'] += 2
-                storeprev = False
-                prev = ''
+            # should check this first
+            if buf == '<!--':
+                incomment = True
+            elif buf[1:4] == '-->':
+                incomment = False
                 
-            elif c == '<': brackets['angle'] += 1
+            if not incomment:
+                if c == ')': brackets['round'] -= 1
+                elif c == ']': brackets['square'] -= 1
+                elif buf[-1] == '}' and c == '}': 
+                    logger.debug('[%s] }}', p)
+                    brackets['curly'] -= 2
+                    storeprev = False
+                elif c == '>': brackets['angle'] -= 1
+
+                
+                if intemplate != -1 and brackets['curly'] < 2:
+                    templates[intemplate]['end'] = p + 1
+                    templates[intemplate]['splits'].append(tmp[:-1]) # skip ending }
+                    #templates[intemplate]['splits'] = map(self.clean_p, templates[intemplate]['splits'])
+                    #print templates[-1]['splits']
+                    navn = templates[intemplate]['splits'].pop(0).strip('{')
+                    templates[intemplate]['name'] = navn
+                    templates[intemplate]['txt'] = text[templates[intemplate]['begin']-start:templates[intemplate]['end']-start]
+                    #logger.debug(spaces+"  "+c,"end, Name="+templates[intemplate]['name'],templates[intemplate]['begin'],templates[intemplate]['end']
+
+                    # Scan all splits for sub-templates:
+                    offset = start + templates[intemplate]['begin'] + 2 + len(navn) + 1
+                    #print offset
+                    for s in templates[intemplate]['splits']:
+                        #print s
+                        templates = templates + self.scan_for_templates(s, level = level + 1, start = offset)
+                        offset += len(s) + 1
+                        #offset += 1 # for the pipe
+
+                    intemplate = -1
+                elif intemplate == -1 and brackets['curly'] >= 2:
+                    #if debug:
+                    #    print spaces +"  Template start at ",c
+                    templates.append({'begin':p-2, 'end':-1, 'splits':[]})
+                    intemplate = len(templates)-1
+                    brackets_before = brackets.copy()
+                    tmp = ''
+
+                if intemplate != -1 and c == '|' and brackets['square'] == brackets_before['square'] and brackets['angle'] == brackets_before['angle'] and brackets['curly'] == 2:
+                    templates[intemplate]['splits'].append(tmp)
+                    tmp = ''
+                else:
+                    tmp += c
+
+                if c == '(':   brackets['round'] += 1
+                elif c == '[': brackets['square'] += 1
+                elif buf[-1] == '{' and c == '{': 
+                    logger.debug('[%s] {{', p)
+                    brackets['curly'] += 2
+                    storeprev = False
+                
+                elif c == '<': brackets['angle'] += 1
 
             if storeprev:
-                prev = c
+                buf = buf[1:4] + c
+            else:
+                buf = buf[1:4] + ' '
 
         if brackets['curly'] != 0:
             raise DanmicholoParseError('Unbalanced curly brackets encountered (%d)!' % brackets['curly'])
