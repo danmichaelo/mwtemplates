@@ -200,6 +200,7 @@ class TemplateEditor(object):
             if buf == '<!--':
                 incomment = True
             elif buf[1:4] == '-->':
+                brackets['angle'] -= 1
                 incomment = False
                 
             if not incomment:
@@ -240,11 +241,13 @@ class TemplateEditor(object):
                     brackets_before = brackets.copy()
                     tmp = ''
 
-                if intemplate != -1 and c == '|' and brackets['square'] == brackets_before['square'] and brackets['angle'] == brackets_before['angle'] and brackets['curly'] == 2:
-                    templates[intemplate]['splits'].append(tmp)
-                    tmp = ''
-                else:
-                    tmp += c
+            if incomment == False and intemplate != -1 and c == '|' and brackets['square'] == brackets_before['square'] and brackets['angle'] == brackets_before['angle'] and brackets['curly'] == 2:
+                templates[intemplate]['splits'].append(tmp)
+                tmp = ''
+            else:
+                tmp += c
+
+            if not incomment:
 
                 if c == '(':   brackets['round'] += 1
                 elif c == '[': brackets['square'] += 1

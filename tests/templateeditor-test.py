@@ -111,6 +111,12 @@ class TestTemplateEditor(unittest.TestCase):
         text = 'Lorem ipsum <!--{{flagg|no}}--> dolor sit amet'
         dp = TemplateEditor(text)
         self.assertEqual(len(dp.templates.keys()), 0)
+    
+    def test_commentswithintemplates(self):
+        arg = '<!-- kommentartest -->'
+        text = 'Lorem ipsum {{flagg\n|land=%s|param2=test\n }} dolor sit amet' % arg
+        dp = TemplateEditor(text)
+        self.assertEqual(dp.templates['flagg'][0].parameters['land'], arg)
 
 if __name__ == '__main__':
     unittest.main()
