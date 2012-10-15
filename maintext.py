@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 
 import logging
 logger = logging.getLogger(__name__)
+from dperrors import DanmicholoParseError
 
 def condition_for_soup(text):
     """
