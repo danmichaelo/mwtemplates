@@ -69,11 +69,12 @@ class DpTemplate(object):
                     if self.parameters[sname] == s[1].strip():
                         logger.warn('The same parameter "%s" was passed twice to a template "%s", but with the same value, so we can just chop off one')
                     else:
-                        raise DanmicholoParseError('Ambigious: The same parameter "%s" was passed twice to a template "%s":\n\n%s' % (sname, self.name, self._txt))
-                else:
-                    self.parameters[sname] = s[1].strip()
-                    self._paramnames[sname] = s[0]  # save the original, unstripped form
-                    self._paramspace[sname] = get_whitespace(s[1])
+                        logger.warn('Ambigious: The same parameter "%s" was passed twice to a template "%s":\n\n%s' % (sname, self.name, self._txt))
+                        #raise DanmicholoParseError('Ambigious: The same parameter "%s" was passed twice to a template "%s":\n\n%s' % (sname, self.name, self._txt))
+                #else:
+                self.parameters[sname] = s[1].strip()
+                self._paramnames[sname] = s[0]  # save the original, unstripped form
+                self._paramspace[sname] = get_whitespace(s[1])
             else:
                 raise DanmicholoParseError("Wrong len %d in %s " % (len(s), s))
     
