@@ -69,14 +69,28 @@ class DpTemplate(object):
                     if self.parameters[sname] == s[1].strip():
                         logger.warn('The same parameter "%s" was passed twice to a template "%s", but with the same value, so we can just chop off one')
                     else:
-                        raise DanmicholoParseError('Ambigious: The same parameter "%s" was passed twice to a template "%s":\n\n%s' % (sname, self.name, self._txt))
-                else:
-                    self.parameters[sname] = s[1].strip()
-                    self._paramnames[sname] = s[0]  # save the original, unstripped form
-                    self._paramspace[sname] = get_whitespace(s[1])
+                        logger.warn('Ambigious: The same parameter "%s" was passed twice to a template "%s":\n\n%s' % (sname, self.name, self._txt))
+                        #raise DanmicholoParseError('Ambigious: The same parameter "%s" was passed twice to a template "%s":\n\n%s' % (sname, self.name, self._txt))
+                #else:
+                self.parameters[sname] = s[1].strip()
+                self._paramnames[sname] = s[0]  # save the original, unstripped form
+                self._paramspace[sname] = get_whitespace(s[1])
             else:
                 raise DanmicholoParseError("Wrong len %d in %s " % (len(s), s))
     
+    def get_anonymous_parameters(self):
+        """ Returns a normal list, with index starting on 0 """
+        anon = [[k,v] for k,v in self.parameters.items() if type(k) == int] 
+        anon = sorted(anon, key = lambda x: x[0])
+        anon = [a[1] for a in anon]
+        return anon
+
+    def get_named_parameters(self):
+        """ Returns a odict of named parameters """
+        named = [[k,v] for k,v in self.parameters.items() if type(k) != int]
+        named = odict(named)
+        return named
+
     def has_param(self, name):
         """ Returns true if the parameter is defined and non-empty """
         return name in self.parameters.keys() and self.parameters[name] != ''
