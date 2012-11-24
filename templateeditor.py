@@ -78,6 +78,19 @@ class DpTemplate(object):
             else:
                 raise DanmicholoParseError("Wrong len %d in %s " % (len(s), s))
     
+    def get_anonymous_parameters(self):
+        """ Returns a normal list, with index starting on 0 """
+        anon = [[k,v] for k,v in self.parameters.items() if type(k) == int] 
+        anon = sorted(anon, key = lambda x: x[0])
+        anon = [a[1] for a in anon]
+        return anon
+
+    def get_named_parameters(self):
+        """ Returns a odict of named parameters """
+        named = [[k,v] for k,v in self.parameters.items() if type(k) != int]
+        named = odict(named)
+        return named
+
     def has_param(self, name):
         """ Returns true if the parameter is defined and non-empty """
         return name in self.parameters.keys() and self.parameters[name] != ''
