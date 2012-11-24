@@ -182,6 +182,7 @@ class TemplateEditor(object):
         spaces = ''.join([' ' for i in range(level)])
 
         logger.debug('%s> scan (offset = %d, length = %d)', spaces, start, len(text))
+        logger.debug(text)
 
         # We should keep track of all brackets, so we don't split inside a bracketed part:
         brackets = { 'round' : 0, 'square': 0, 'curly': 0, 'angle': 0 }
@@ -207,7 +208,7 @@ class TemplateEditor(object):
                 if c == ')': brackets['round'] -= 1
                 elif c == ']': brackets['square'] -= 1
                 elif buf[-1] == '}' and c == '}': 
-                    logger.debug('[%s] }}', p)
+                    logger.debug('[%5d] %s}}(%d)', p, ''.join([' ' for x in range(brackets['curly']-2)]), brackets['curly']-2)
                     brackets['curly'] -= 2
                     storeprev = False
                 elif c == '>': brackets['angle'] -= 1
@@ -252,7 +253,7 @@ class TemplateEditor(object):
                 if c == '(':   brackets['round'] += 1
                 elif c == '[': brackets['square'] += 1
                 elif buf[-1] == '{' and c == '{': 
-                    logger.debug('[%s] {{', p)
+                    logger.debug('[%5d] %s{{(%d)', p, ''.join([' ' for x in range(brackets['curly'])]), brackets['curly']+2)
                     brackets['curly'] += 2
                     storeprev = False
                 
@@ -298,3 +299,24 @@ class TemplateEditor(object):
                     mod += 1
                 #print t.begin
         return txt
+
+if __name__ == '__main__':
+    
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('[%(asctime)s %(levelname)s] %(message)s')
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.DEBUG)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+
+    txt = sys.stdin.read().decode('utf-8')
+    te = TemplateEditor(txt)
+    #logger.debug('hello')
+    try:
+        for t in te.templates:
+            print t.name
+    except DanmicholoParseError as e:
+        print 'ERROR: ' + e.msg
+
+

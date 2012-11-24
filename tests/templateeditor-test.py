@@ -117,6 +117,12 @@ class TestTemplateEditor(unittest.TestCase):
         text = 'Lorem ipsum {{flagg\n|land=%s|param2=test\n }} dolor sit amet' % arg
         dp = TemplateEditor(text)
         self.assertEqual(dp.templates['flagg'][0].parameters['land'], arg)
+    
+    def test_parametersintemplates(self):
+        arg = '{{{1|{{{2}}}}}}'
+        text = 'Lorem ipsum {{flagg|land=%s}} dolor sit amet' % arg
+        dp = TemplateEditor(text)
+        self.assertEqual(dp.templates['flagg'][0].parameters['land'], arg)
 
 if __name__ == '__main__':
     unittest.main()
