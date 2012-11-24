@@ -212,10 +212,12 @@ class TemplateEditor(object):
             storeprev = True
             
             # should check this first
-            if buf == '<!--':
+            if buf == '<!--' or buf == '<now':
                 incomment = True
             elif buf[1:4] == '-->':
                 brackets['angle'] -= 1
+                incomment = False
+            elif buf == '</no':
                 incomment = False
                 
             if not incomment:
