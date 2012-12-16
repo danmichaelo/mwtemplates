@@ -118,11 +118,17 @@ class TestTemplateEditor(unittest.TestCase):
         dp = TemplateEditor(text)
         self.assertEqual(dp.templates['flagg'][0].parameters['land'], arg)
     
+    def test_ignore_nowiki(self):
+        text = '<nowiki>{{flagg|no}}</nowiki>'
+        dp = TemplateEditor(text)
+        self.assertEqual(len(dp.templates.keys()), 0)
+    
     def test_parametersintemplates(self):
         arg = '{{{1|{{{2}}}}}}'
         text = 'Lorem ipsum {{flagg|land=%s}} dolor sit amet' % arg
         dp = TemplateEditor(text)
         self.assertEqual(dp.templates['flagg'][0].parameters['land'], arg)
+
 
 if __name__ == '__main__':
     unittest.main()
