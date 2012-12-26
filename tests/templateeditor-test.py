@@ -128,6 +128,11 @@ class TestTemplateEditor(unittest.TestCase):
         text = 'Lorem ipsum {{flagg|land=%s}} dolor sit amet' % arg
         dp = TemplateEditor(text)
         self.assertEqual(dp.templates['flagg'][0].parameters['land'], arg)
+    
+    def test_malprefix(self):
+        text = 'Lorem ipsum {{Mal:Flagg}} og {{Template:Flagg}} og {{Flagg}}.'
+        dp = TemplateEditor(text)
+        self.assertEqual(len(dp.templates['flagg']), 3)
 
 
 if __name__ == '__main__':

@@ -171,6 +171,10 @@ class TemplateEditor(object):
             #print dt
 
             k = dt.name.strip().lower()
+            if k[:4] == 'mal:':
+                k = k[4:]
+            elif k[:9] == 'template:':
+                k = k[9:]
             if k in self._templates:
                 self._templates[k].append(dt)
             else:
