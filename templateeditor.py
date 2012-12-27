@@ -160,7 +160,7 @@ class TemplateEditor(object):
             return self._templates
         except:
             pass
-        txt = re.sub('<nowiki>.+?</nowiki>', '', self.text)
+        #txt = re.sub('<nowiki>.+?</nowiki>', '', self.text) # Farlig ved redigering!
         templates = self.scan_for_templates(txt)
         
         self._templates = odict()
@@ -190,7 +190,11 @@ class TemplateEditor(object):
         return [s.strip() for s in p]
 
     def scan_for_templates(self, text, level = 0, start = 0):
-        """ Recursive template scanner """
+        """ Recursive template scanner
+
+        TODO: HANDLE <nowiki> and <math>
+
+        """
         logger = logging.getLogger('TemplateEditor.scan_for_templates')
         
         if level > 20:

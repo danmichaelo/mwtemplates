@@ -123,6 +123,12 @@ class TestTemplateEditor(unittest.TestCase):
         dp = TemplateEditor(text)
         self.assertEqual(len(dp.templates.keys()), 0)
     
+    def test_edit_nowiki(self):
+        text = '<nowiki>{{flagg|no}}</nowiki>{{flagg|%s}}'
+        dp = TemplateEditor(text%'no')
+        dp.templates['flagg'][0].parameters[1] = 'en'
+        self.assertEqual(dp.get_wikitext(), text % 'en')
+    
     def test_parametersintemplates(self):
         arg = '{{{1|{{{2}}}}}}'
         text = 'Lorem ipsum {{flagg|land=%s}} dolor sit amet' % arg
