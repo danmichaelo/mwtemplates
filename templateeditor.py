@@ -161,7 +161,7 @@ class TemplateEditor(object):
         except:
             pass
         #txt = re.sub('<nowiki>.+?</nowiki>', '', self.text) # Farlig ved redigering!
-        templates = self.scan_for_templates(txt)
+        templates = self.scan_for_templates(self.text)
         
         self._templates = odict()
 
