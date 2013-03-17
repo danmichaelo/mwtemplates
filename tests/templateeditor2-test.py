@@ -140,6 +140,12 @@ class TestTemplateEditor2(unittest.TestCase):
         dp = TemplateEditor(text)
         self.assertEqual(text, dp.wikitext())
 
+    def test_get_anonymous_parameters(self):
+        text = 'Lorem {{Ipsum|dolor|sit|amet}}'
+        te = TemplateEditor(text)
+        tpl = te.templates['ipsum'][0]
+        self.assertEqual(len(tpl.get_anonymous_parameters()), 4)
+
     # MODIFICATION TESTS
 
     def test_namechange(self):

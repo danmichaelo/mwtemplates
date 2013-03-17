@@ -229,8 +229,9 @@ class Parameters(object):
     # def keys(self):
     #     return self._entries.keys()
 
-    # def __iter__(self):
-    #     return self._entries.iterkeys()
+    def __iter__(self):
+        for e in self._entries:
+            yield e
 
     def add(self, node):
         self._entries.append(Parameter(node))
@@ -291,7 +292,7 @@ class Parameter(object):
 
     @property
     def value(self):
-        return self._value
+        return self._value.strip()
 
     def __eq__(self, x):
         #print type(x)
@@ -357,11 +358,15 @@ class Template(object):
 
     def get_anonymous_parameters(self):
         """ Returns True if the parameter is defined and non-empty """
-        r = []
+        r = {}
         for x in self.parameters:
             if type(x.key) == int:
                 r[x.key] = x.value
-        return r 
+        lst = [None]
+        for x in range(1, max(r.keys()) + 1):
+            print x, r[x]
+            lst.append(r[x])
+        return lst
 
     def __str__(self):
         tmp = '{{%s' % self._name
