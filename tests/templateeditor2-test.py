@@ -146,6 +146,17 @@ class TestTemplateEditor2(unittest.TestCase):
         tpl = te.templates['ipsum'][0]
         self.assertEqual(len(tpl.get_anonymous_parameters()), 4)
 
+    def test_get_keys(self):
+        text = 'Lorem {{Ipsum|dolor|sit|amet}}'
+        te = TemplateEditor(text)
+        tpl = te.templates.keys()
+        self.assertEqual(tpl, ['Ipsum'])
+
+    def test_get_items(self):
+        text = 'Lorem {{Ipsum|dolor|sit|amet}}'
+        te = TemplateEditor(text)
+        x = te.templates.items()
+        self.assertEqual(x.keys()[0], 'Ipsum')
     # MODIFICATION TESTS
 
     def test_namechange(self):
