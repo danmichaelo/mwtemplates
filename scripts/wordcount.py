@@ -13,7 +13,7 @@ args = parser.parse_args()
 
 no = mwclient.Site('no.wikipedia.org')
 
-page = no.pages[args.page]
+page = no.pages[args.page.decode('utf-8')]
 
 print "Getting revision texts..."
 revs = [[int(r['revid']),r['*']] for r in page.revisions(prop='ids|content')]
