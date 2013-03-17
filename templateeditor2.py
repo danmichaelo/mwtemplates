@@ -124,7 +124,7 @@ class Templates(object):
     def __init__(self, editor, doc):
         self.editor = editor
         self.doc = doc
-        #self._entries = []
+        #self._entries = self._templates()
 
     def _templates(self):
         templates = []
@@ -154,10 +154,10 @@ class Templates(object):
         return len(self._templates())
 
     def keys(self):
-        return [e.key for e in self._templates()]
+        return list(set([e.key for e in self._templates()]))
 
     def items(self):
-        return {e.key: e for e in self._templates()}
+        return [(k, self[k]) for k in self.keys()]
 
     # def __contains__(self, x):
     #     return self.get_key(x) in self._entries

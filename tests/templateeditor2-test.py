@@ -156,7 +156,7 @@ class TestTemplateEditor2(unittest.TestCase):
         text = 'Lorem {{Ipsum|dolor|sit|amet}}'
         te = TemplateEditor(text)
         x = te.templates.items()
-        self.assertEqual(x.keys()[0], 'Ipsum')
+        self.assertEqual(x[0][0], 'Ipsum')
     # MODIFICATION TESTS
 
     def test_namechange(self):
