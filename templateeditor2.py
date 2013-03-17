@@ -312,6 +312,12 @@ class Parameter(object):
     def __str__(self):
         return self.__unicode__().encode('utf-8')
 
+    def __float__(self):
+        return float(self.__unicode__())
+
+    def __int__(self):
+        return int(self.__unicode__())
+
     def __repr__(self):
         return safe_repr(self._value.strip())
 
@@ -364,7 +370,6 @@ class Template(object):
                 r[x.key] = x.value
         lst = [None]
         for x in range(1, max(r.keys()) + 1):
-            print x, r[x]
             lst.append(r[x])
         return lst
 
