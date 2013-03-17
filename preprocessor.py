@@ -208,7 +208,7 @@ def preprocessToXml(text):
     i = 0       # Input pointer, starts out pointing to a pseudo-newline before the start
     while True:
         cnt += 1
-        if cnt > 10000:
+        if cnt > 100000:
             raise StandardError('Too long input. Aborting')
 
         # if fakeLineStart:
@@ -327,7 +327,7 @@ def preprocessToXml(text):
                 tagStartPos = i
                 if text[tagEndPos-1] == '/':
                     attrEnd = tagEndPos - 1
-                    inner = None
+                    inner = ''
                     i = tagEndPos + 1
                     close = ''
                 else:
