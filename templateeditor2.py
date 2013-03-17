@@ -355,6 +355,14 @@ class Template(object):
         """ Returns True if the parameter is defined and non-empty """
         return name in self.parameters and self.parameters[name] != ''
 
+    def get_anonymous_parameters(self):
+        """ Returns True if the parameter is defined and non-empty """
+        r = []
+        for x in self.parameters:
+            if type(x.key) == int:
+                r[x.key] = x.value
+        return r 
+
     def __str__(self):
         tmp = '{{%s' % self._name
         for n, v in self.parameters.items():
