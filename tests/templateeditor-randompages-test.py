@@ -21,10 +21,10 @@ fh.setFormatter(formatter)
 fh.setLevel(logging.DEBUG)
 logger.addHandler(fh)
 
-fc = logging.StreamHandler()
-fc.setFormatter(formatter)
-fc.setLevel(logging.INFO)
-logger.addHandler(fc)
+#fc = logging.StreamHandler()
+#fc.setFormatter(formatter)
+#fc.setLevel(logging.INFO)
+#logger.addHandler(fc)
 
 
 #@with_setup(setup)
@@ -39,13 +39,9 @@ def test_randompages():
 def check_randompage(pagename):
     logger.debug('Page: %s', pagename)
     page = site.pages[pagename]
-    inputtxt = page.edit(readonly = True)
+    inputtxt = page.edit(readonly=True)
     dp = TemplateEditor(inputtxt)
-    try:
-        t = dp.templates
-    except DanmicholoParseError:
-        logger.error('parsing failed')
-    outputtxt = dp.get_wikitext()
+    outputtxt = dp.wikitext()
 
     assert inputtxt == outputtxt
 

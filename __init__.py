@@ -2,5 +2,5 @@
 
 from dperrors import DanmicholoParseError
 from parser import *
-from templateeditor import TemplateEditor 
+from templateeditor2 import TemplateEditor 
 from maintext import MainText, condition_for_soup
