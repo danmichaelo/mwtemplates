@@ -153,6 +153,12 @@ class Templates(object):
     def __len__(self):
         return len(self._templates())
 
+    def keys(self):
+        return [e.key for e in self._templates()]
+
+    def items(self):
+        return {e.key: e for e in self._templates()}
+
     # def __contains__(self, x):
     #     return self.get_key(x) in self._entries
 
@@ -161,9 +167,6 @@ class Templates(object):
 
     # def __setitem__(self, x, val):
     #     self._entries[self.get_key(x)] = val
-
-    #def keys(self):
-    #    return self._templates().keys()
 
     # def values():
     #     return self._entries.values()
