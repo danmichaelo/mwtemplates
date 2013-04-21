@@ -159,6 +159,10 @@ class Templates(object):
     def items(self):
         return [(k, self[k]) for k in self.keys()]
 
+    def iteritems(self):
+        for k in self.keys():
+            yield (k, self[k])
+
     # def __contains__(self, x):
     #     return self.get_key(x) in self._entries
 
