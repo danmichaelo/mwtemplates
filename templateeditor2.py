@@ -389,6 +389,31 @@ class Template(object):
         tmp += '}}'
 
         return tmp
+ 
+    def remove(self):
+        self.__del__()
+
+    def __del__(self):
+        logger.debug('Removing node "%s"', self.key)
+        parent = self.node.getparent()
+        prevnode = None
+        for node in parent.getchildren():
+            if node == self.node:
+                if prevnode == None:
+                    if parent.text == None:
+                        parent.text = self.node.tail.lstrip()
+                    else:
+                        parent.text += self.node.tail.lstrip()
+
+                else:
+                    if prevnode.tail == None:
+                        prevnode.tail = self.node.tail.lstrip()
+                    else:
+                        prevnode.tail += self.node.tail.lstrip()
+                parent.remove(self.node)
+                return
+            else:
+                prevnode = node
 
     def wikitext(self):
         tmp = '{{%s' % self._name
