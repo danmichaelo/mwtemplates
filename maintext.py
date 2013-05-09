@@ -69,6 +69,8 @@ class MainText(object):
     @property
     def maintext(self):
 
+        self.parse_errors = []
+
         # use cached value if available
         try:
             return self._maintext
@@ -83,8 +85,6 @@ class MainText(object):
         for child in root.childGenerator():
             if type(child) == NavigableString:
                 out += child
-            else:
-                print child.name
 
         # Strip tables
         buf = []
