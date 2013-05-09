@@ -458,18 +458,11 @@ def preprocessToXml(text):
                     piece.parts = [PPDPart()]
                     piece.data['count'] -= matchingCount
                     # do we still qualify for any callback with remaining count?
-                    names = rules[piece.data['open']]['names']
-                    skippedBraces = 0
-                    enclosingAccum = stack.accum
-                    while piece.data['count']:
-                        if piece.data['count'] in names.keys():
-                            stack.append(piece)
-                            #accum = stack.accum
-                            break
-                        piece.count -= 1
-                        skippedBraces += 1
-                    #enclosing = stack.top
-                    enclosingAccum += piece.data['open'] * skippedBraces
+                    omin = rules[piece.data['open']]['min']
+                    if piece.data['count'] >= omin:
+                        stack.append(piece)
+                    else:
+                        stack.accum += piece.data['open'] * piece.data['count']
 
                 flags = stack.getFlags()
                 findPipe = flags['findPipe']

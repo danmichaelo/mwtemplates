@@ -144,7 +144,7 @@ class TestPreprocessor(unittest.TestCase):
     def test_template_in_math(self):
         # The template should not be handled if inside <math>
         text = 'Lorem <math>{{ipsum}}</math>'
-        xml = preprocessToXml('%s' % text )
+        xml = preprocessToXml('%s' % text)
         correct_xml = '<root>%s</root>' % htmlspecialchars(text)
         self.assertEqual(xml, correct_xml)
 
@@ -159,6 +159,25 @@ class TestPreprocessor(unittest.TestCase):
         xml = preprocessToXml(text)
         correct_xml = '<root>Lorem&lt;b&gt;ipsum&lt;/b&gt; ipsam</root>'
         self.assertEqual(xml, correct_xml)
+
+    def test_nonmatching_braces1(self):
+        text = '{{Lorem{{{ipsum}}dolor}}'
+        xml = preprocessToXml(text)
+        correct_xml = '<root><template><title>Lorem{<template><title>ipsum</title></template>dolor</title></template></root>'
+        self.assertEqual(xml, correct_xml)
+
+    def test_nonmatching_braces2(self):
+        text = '{{Lorem{{{ipsum}dolor}}'
+        xml = preprocessToXml(text)
+        correct_xml = '<root>{{Lorem{<template><title>ipsum}dolor</title></template></root>'
+        self.assertEqual(xml, correct_xml)
+
+    def test_nonmatching_braces3(self):
+        text = '{{Lorem{{{ipsum}}dolor'
+        xml = preprocessToXml(text)
+        correct_xml = '<root>{{Lorem{<template><title>ipsum</title></template>dolor</root>'
+        self.assertEqual(xml, correct_xml)
+
 
 if __name__ == '__main__':
     unittest.main()
