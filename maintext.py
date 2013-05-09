@@ -1,12 +1,22 @@
 # encoding=utf-8
+#encoding=utf-8
+"""
+DanmicholoParser
+Copyright (c) 2012-2013 Dan Michael O. Heggø
+
+Simple wikitext template parser and editor
+"""
 
 from __future__ import unicode_literals
 import re
 from bs4 import BeautifulSoup
+from bs4 import NavigableString
 
 import logging
 logger = logging.getLogger(__name__)
-from dperrors import DanmicholoParseError
+
+from danmicholoparser.dperrors import DanmicholoParseError
+from danmicholoparser.preprocessor import preprocessToXml
 
 def condition_for_soup(text):
     """
@@ -58,6 +68,72 @@ class MainText(object):
 
     @property
     def maintext(self):
+
+        # use cached value if available
+        try:
+            return self._maintext
+        except:
+            pass
+
+        xml = preprocessToXml(self.text)
+        xml = xml.replace('&lt;', '<').replace('&gt;', '>')
+        soup = BeautifulSoup(xml)
+        root = soup.find('root')
+        out = ''
+        for child in root.childGenerator():
+            if type(child) == NavigableString:
+                out += child
+            else:
+                print child.name
+
+        # Strip tables
+        buf = []
+        depth = 0
+        cpos = 0
+        while True:
+            openpos = out.find('{|', cpos)
+            closepos = out.find('|}', cpos)
+            if openpos == -1 and closepos == -1:
+                break
+            elif openpos == -1:
+                current = {'mark': 'close', 'pos': closepos}
+            elif closepos == -1:
+                current = {'mark': 'open', 'pos': openpos}
+            else:
+                if openpos < closepos:
+                    current = {'mark': 'open', 'pos': openpos}
+                else:
+                    current = {'mark': 'close', 'pos': closepos}
+
+            if current['mark'] == 'open':
+                if depth == 0:
+                    buf.append(out[cpos:current['pos']])
+                cpos = current['pos'] + 2
+                depth += 1
+            else:
+                cpos = current['pos'] + 2
+                depth -= 1
+
+        if depth == 0:
+            buf.append(out[cpos:])
+        out = ''.join(buf)
+
+        out = re.sub(r'==[=]*', '', out)                                 # drop header markers (but keep header text)
+        out = re.sub(r"''[']*", '', out)                                 # drop bold/italic markers (but keep text)
+        out = re.sub(r'^#.*?$', '', out, flags=re.MULTILINE)             # drop lists altogether
+        out = re.sub(r'^\*.*?$', '', out, flags=re.MULTILINE)            # drop lists altogether
+        out = re.sub(r'\[\[Kategori:[^\]]+\]\]', '', out)                # drop categories
+        out = re.sub(r'(?<!\[)\[(?!\[)[^ ]+ [^\]]+\]', '', out)          # drop external links
+        out = re.sub(r'\[\[(?:[^:|\]]+\|)?([^:\]]+)\]\]', '\\1', out)    # wikilinks as text, '[[Artikkel 1|artikkelen]]' -> 'artikkelen'
+        out = re.sub(r'\[\[(?:Fil|File|Image|Bilde):[^\]]+\|([^\]]+)\]\]', '\\1', out)  # image descriptions only
+        out = re.sub(r'\[\[[A-Za-z\-]+:[^\]]+\]\]', '', out)             # drop interwikis
+
+        out = out.strip()
+        self._maintext = out
+        return out
+
+    @property
+    def maintext_old(self):
 
         logger = logging.getLogger('DanmicholoParser.maintext')
         self.parse_errors = []
