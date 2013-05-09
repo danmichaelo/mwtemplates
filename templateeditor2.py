@@ -1,4 +1,11 @@
 #encoding=utf-8
+"""
+DanmicholoParser
+Copyright (c) 2012-2013 Dan Michael O. Heggø
+
+Simple wikitext template parser and editor
+"""
+
 from __future__ import unicode_literals
 
 # <root>LLorem ipsum <template>
@@ -42,13 +49,12 @@ from __future__ import unicode_literals
 # </template>
 # </root>
 
-
 import logging
 import re
 from lxml import etree
 from StringIO import StringIO
 #from odict import odict
-from preprocessor import preprocessToXml
+from danmicholoparser.preprocessor import preprocessToXml
 from unittest.util import safe_repr
 
 logger = logging.getLogger()
@@ -60,9 +66,13 @@ def most_common(lst):
 
 
 def get_whitespace(txt):
+    """
+    Returns a list containing the whitespace to the left and
+    right of a string as its two elements
+    """
 
     # if the entire parameter is whitespace
-    rall = re.search('^([\s])+$', txt)
+    rall = re.search(r'^([\s])+$', txt)
     if rall:
         tmp = txt.split('\n', 1)
         if len(tmp) == 2:
@@ -71,14 +81,14 @@ def get_whitespace(txt):
             return (tmp, '')
     left = ''
     # find whitespace to the left of the parameter
-    rl = re.search('^([\s])+', txt)
-    if rl:
-        left = rl.group(0)
+    rlm = re.search(r'^([\s])+', txt)
+    if rlm:
+        left = rlm.group(0)
     right = ''
     # find whitespace to the right of the parameter
-    rr = re.search('([\s])+$', txt)
-    if rr:
-        right = rr.group(0)
+    rrm = re.search(r'([\s])+$', txt)
+    if rrm:
+        right = rrm.group(0)
     return (left, right)
 
 # try:
@@ -113,13 +123,18 @@ def get_wikitext(node):
     return tmp
 
 
-def get_arg(node):
-    node.xpath('name')[0]
-    node.xpath('value')[0]
+#def get_arg(node):
+#    node.xpath('name')[0]
+#    node.xpath('value')[0]
 
 
 class Templates(object):
-    """ Dictionary-like object with first character case-insensitive """
+    """
+    Dictionary-like class to hold templates.
+    The first character of the key is case-insensitive, to mimic MediaWiki,
+    where {{Hello}} and {{hello}} are considered the same template, while
+    {{Hello}} and {{HEllo}} are not.
+    """
 
     def __init__(self, editor, doc):
         self.editor = editor
@@ -135,16 +150,16 @@ class Templates(object):
     # def add(self, node):
     #     self._entries.append(Template(node, self.editor))
 
-    def __contains__(self, x):
-        x = x[0].upper() + x[1:]
-        for e in self._templates():
-            if e.key == x:
+    def __contains__(self, tpl_name):
+        tpl_name = tpl_name[0].upper() + tpl_name[1:]
+        for tpl in self._templates():
+            if tpl.key == tpl_name:
                 return True
         return False
 
-    def __getitem__(self, x):
-        x = x[0].upper() + x[1:]
-        return [e for e in self._templates() if e.key == x]
+    def __getitem__(self, tpl_name):
+        tpl_name = tpl_name[0].upper() + tpl_name[1:]
+        return [tpl for tpl in self._templates() if tpl.key == tpl_name]
         #raise KeyError
 
     def __repr__(self):
@@ -154,14 +169,14 @@ class Templates(object):
         return len(self._templates())
 
     def keys(self):
-        return list(set([e.key for e in self._templates()]))
+        return list(set([tpl.key for tpl in self._templates()]))
 
     def items(self):
-        return [(k, self[k]) for k in self.keys()]
+        return [(key, self[key]) for key in self.keys()]
 
     def iteritems(self):
-        for k in self.keys():
-            yield (k, self[k])
+        for key in self.keys():
+            yield (key, self[key])
 
     # def __contains__(self, x):
     #     return self.get_key(x) in self._entries
@@ -180,46 +195,49 @@ class Templates(object):
 
 
 class Parameters(object):
-    """ Dictionary-like object """
+    """
+    Dictionary-like class to hold a template's parameters.
+    """
 
     def __init__(self, template):
         self._entries = []
         self.template = template
 
-    def __contains__(self, x):
-        for e in self._entries:
-            if e.key == x:
+    def __contains__(self, param_name):
+        for param in self._entries:
+            if param.key == param_name:
                 return True
         return False
 
-    def __getitem__(self, x):
-        for e in self._entries:
-            if e.key == x:
-                return e
+    def __getitem__(self, param_name):
+        for param in self._entries:
+            if param.key == param_name:
+                return param
         raise KeyError
 
-    def __setitem__(self, x, val):
+    def __setitem__(self, name, val):
         if type(val) in [unicode, str, int]:
             for entry in self._entries:
-                if entry.key == x:
+                if entry.key == name:
                     # parameter changed:
                     entry.edit(val)
                     return
             # new parameter:
             name_ws, value_ws = self.find_whitespace_pattern()
             #print '"' + whitespace[0] + '", "' + whitespace[1] + '"'
-            name = name_ws[0] + x + name_ws[1]
+            name = name_ws[0] + name + name_ws[1]
             val = value_ws[0] + val + value_ws[1]
             parentnode = self.template.node
-            node = etree.XML('<part><name>%s</name>=<value>%s</value></part>' % (name, val))
+            node = etree.XML('<part><name>%s</name>=<value>%s</value></part>'
+                             % (name, val))
             parentnode.append(node)
             self.add(node)
         else:
             raise TypeError
 
-    def __delitem__(self, x):
+    def __delitem__(self, param_name):
         for i, entry in enumerate(self._entries):
-            if entry.key == x:
+            if entry.key == param_name:
                 # parameter changed:
                 logger.debug('Removing parameter "%s"', entry.key)
                 self.template.node.remove(entry.node)
@@ -236,9 +254,12 @@ class Parameters(object):
     # def keys(self):
     #     return self._entries.keys()
 
+    def __len__(self):
+        return len(self._entries)
+
     def __iter__(self):
-        for e in self._entries:
-            yield e
+        for param in self._entries:
+            yield param
 
     def add(self, node):
         self._entries.append(Parameter(node))
@@ -262,6 +283,9 @@ class Parameters(object):
 
 
 class Parameter(object):
+    """
+    Class to hold a single template parameter.
+    """
 
     def __init__(self, node):
         self.node = node
@@ -273,14 +297,17 @@ class Parameter(object):
             self._index = int(idx)
         else:
             self._index = -1
-        logger.debug('  added parameter: %s=%s', self._name.strip(), self._value.strip())
+        logger.debug('  added parameter: %s=%s',
+                     self._name.strip(), self._value.strip())
 
     def edit(self, val):
-        logger.debug('Parameter "%s" changed: "%s" -> "%s"', self.key, self.value.strip(), val)
+        logger.debug('Parameter "%s" changed: "%s" -> "%s"',
+                     self.key, self.value.strip(), val)
         whitespace = get_whitespace(self._value)
         self._value = whitespace[0] + unicode(val) + whitespace[1]
         # self.node.xpath('value')[0].text = self._value
-        self.node.replace(self.node.xpath('value')[0], etree.XML('<value>' + self._value + '</value>'))
+        self.node.replace(self.node.xpath('value')[0],
+                          etree.XML('<value>' + self._value + '</value>'))
 
     @property
     def index(self):
@@ -301,17 +328,16 @@ class Parameter(object):
     def value(self):
         return self._value.strip()
 
-    def __eq__(self, x):
-        #print type(x)
-        if type(x) == unicode or type(x) == int:
-            return self.__unicode__() == unicode(x)
-        elif type(x) == str:
-            return self.__str__() == x
+    def __eq__(self, param):
+        if type(param) == unicode or type(param) == int:
+            return self.__unicode__() == unicode(param)
+        elif type(param) == str:
+            return self.__str__() == param
         else:
             return False
 
-    def __ne__(self, x):
-        return not self.__eq__(x)
+    def __ne__(self, param):
+        return not self.__eq__(param)
 
     def __unicode__(self):
         return self._value.strip()
@@ -330,6 +356,9 @@ class Parameter(object):
 
 
 class Template(object):
+    """
+    Class to hold a single template.
+    """
 
     def __init__(self, node, editor):
 
@@ -339,12 +368,12 @@ class Template(object):
         self.editor = editor
         self._name = ''
         self.parameters = Parameters(self)
-        for e in node:
-            if e.tag == 'title':
-                self._name = get_wikitext(e)
+        for elem in node:
+            if elem.tag == 'title':
+                self._name = get_wikitext(elem)
                 logger.debug('  name: %s', self.name)
-            elif e.tag == 'part':
-                self.parameters.add(e)
+            elif elem.tag == 'part':
+                self.parameters.add(elem)
 
     def __repr__(self):
         return safe_repr(self.key)
@@ -371,25 +400,28 @@ class Template(object):
 
     def get_anonymous_parameters(self):
         """ Returns True if the parameter is defined and non-empty """
-        r = {}
-        for x in self.parameters:
-            if type(x.key) == int:
-                r[x.key] = x.value
+        tmp = {}
+        for param in self.parameters:
+            if type(param.key) == int:
+                tmp[param.key] = param.value
         lst = [None]
-        for x in range(1, max(r.keys()) + 1):
-            lst.append(r[x])
+        for param in range(1, max(tmp.keys()) + 1):
+            lst.append(tmp[param])
         return lst
 
-    def __str__(self):
-        tmp = '{{%s' % self._name
-        for n, v in self.parameters.items():
-            tmp += '\n |%s=%s' % (n, v)
+    def __unicode__(self):
+        tmp = u'{{%s' % self.name
+        for param in self.parameters:
+            tmp += '\n |%s=%s' % (param.key, param.value)
         if len(self.parameters) > 0:
             tmp += '\n'
         tmp += '}}'
 
         return tmp
- 
+
+    def __str__(self):
+        return self.__unicode__().encode('utf-8')
+
     def remove(self):
         self.__del__()
 
@@ -399,14 +431,14 @@ class Template(object):
         prevnode = None
         for node in parent.getchildren():
             if node == self.node:
-                if prevnode == None:
-                    if parent.text == None:
+                if prevnode is None:
+                    if parent.text is None:
                         parent.text = self.node.tail.lstrip()
                     else:
                         parent.text += self.node.tail.lstrip()
 
                 else:
-                    if prevnode.tail == None:
+                    if prevnode.tail is None:
                         prevnode.tail = self.node.tail.lstrip()
                     else:
                         prevnode.tail += self.node.tail.lstrip()
@@ -415,37 +447,18 @@ class Template(object):
             else:
                 prevnode = node
 
-    def wikitext(self):
-        tmp = '{{%s' % self._name
-        for n, v in self.parameters.items():
-            tmp += '|%s=%s' % (n, v)
-        tmp += '}}'
-
-
-    # def save(self):
-    #     self.node.xpath('title')[0].text = self._name
-    #     parts = self.node.xpath('part')
-    #     for key, param in self.parameters.items():
-    #         i = unicode(param.index)
-    #         n = unicode(param.name)
-
-    #         fnd = False
-    #         for part in parts:
-    #             #print '"%s"  "%s"  "%s"' % (part.xpath('name')[0].get('index'), part.xpath('name')[0].text, n)
-
-    #             if part.xpath('name')[0].get('index') == i or part.xpath('name')[0].text == n:
-    #                 part.xpath('value')[0].text = param.value
-    #                 fnd = True
-    #         if not fnd:
-    #             print ' ->! APPEND'
-    #             self.node.append(etree.XML('<part><name>%s</name>=<value>%s</value></part>' % (n, param.value)))
-
-            #print self.node.xpath('part/value')[0].text, '->', v
-            #self.node.xpath('part/name')[0].text = n
-            #self.node.xpath('part/value')[0].text = v
-
 
 class TemplateEditor(object):
+    """
+    TemplateEditor is the main class to work with templates in some wikitext.
+
+    Example:
+
+    >>> editor = TemplateEditor(wikitext)
+    >>> tpl = editor.templates['Infobox country'][0]
+    >>> tpl.parameters['population_census'] = '5,033,676'
+    >>> print editor.wikitext()
+    """
 
     def __init__(self, text):
         xml = preprocessToXml(text)
@@ -470,17 +483,3 @@ class TemplateEditor(object):
         #         tpl.save()
         txt = get_wikitext(self.doc.xpath('/root')[0])
         return txt
-
-if __name__ == "__main__":
-    orig = 'LLorem {{ipsum|kake=bake}} {{{{{Min {{lille}} mal}}}son| sorona | Kake = sake }}'
-    d = TemplateEditor(orig)
-    print orig == d.wikitext()
-
-    orig = 'LLorem {{IIIIIIIIIIIIIIIIIIIIIIII}'
-    d = TemplateEditor(orig)
-    print orig == d.wikitext()
-
-    #print orig
-    #print d.as_wikitext()
-
-    #xml = '<root>LLorem ipsum <template><title><tplarg><title>Min lille mal</title></tplarg></title><part><name>Kake</name>=<value>sake</value></part></template></root>'
