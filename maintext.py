@@ -12,6 +12,9 @@ import re
 from bs4 import BeautifulSoup
 from bs4 import NavigableString
 
+from lxml.html import fromstring
+from lxml.etree import tostring
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -68,6 +71,67 @@ class MainText(object):
 
     @property
     def maintext(self):
+        xml = preprocessToXml(self.text)
+        xml = xml.replace('&lt;', '<').replace('&gt;', '>')
+        #print xml.encode('utf-8')
+
+        root = fromstring(condition_for_soup(xml))
+
+        out = u''
+        for child in root.iterchildren():
+            if child.prefix:
+                out += child.prefix
+            if child.tail:
+                out += child.tail
+
+        # Strip tables
+        buf = []
+        depth = 0
+        cpos = 0
+        while True:
+            openpos = out.find('{|', cpos)
+            closepos = out.find('|}', cpos)
+            if openpos == -1 and closepos == -1:
+                break
+            elif openpos == -1:
+                current = {'mark': 'close', 'pos': closepos}
+            elif closepos == -1:
+                current = {'mark': 'open', 'pos': openpos}
+            else:
+                if openpos < closepos:
+                    current = {'mark': 'open', 'pos': openpos}
+                else:
+                    current = {'mark': 'close', 'pos': closepos}
+
+            if current['mark'] == 'open':
+                if depth == 0:
+                    buf.append(out[cpos:current['pos']])
+                cpos = current['pos'] + 2
+                depth += 1
+            else:
+                cpos = current['pos'] + 2
+                depth -= 1
+
+        if depth == 0:
+            buf.append(out[cpos:])
+        out = ''.join(buf)
+
+        out = re.sub(r'==[=]*', '', out)                                 # drop header markers (but keep header text)
+        out = re.sub(r"''[']*", '', out)                                 # drop bold/italic markers (but keep text)
+        out = re.sub(r'^#.*?$', '', out, flags=re.MULTILINE)             # drop lists altogether
+        out = re.sub(r'^\*.*?$', '', out, flags=re.MULTILINE)            # drop lists altogether
+        out = re.sub(r'\[\[Kategori:[^\]]+\]\]', '', out)                # drop categories
+        out = re.sub(r'(?<!\[)\[(?!\[)[^ ]+ [^\]]+\]', '', out)          # drop external links
+        out = re.sub(r'\[\[(?:[^:|\]]+\|)?([^:\]]+)\]\]', '\\1', out)    # wikilinks as text, '[[Artikkel 1|artikkelen]]' -> 'artikkelen'
+        out = re.sub(r'\[\[(?:Fil|File|Image|Bilde):[^\]]+\|([^\]]+)\]\]', '\\1', out)  # image descriptions only
+        out = re.sub(r'\[\[[A-Za-z\-]+:[^\]]+\]\]', '', out)             # drop interwikis
+
+        out = out.strip()
+        self._maintext = out
+        return out
+
+    @property
+    def maintext_alt(self):
 
         self.parse_errors = []
 
@@ -79,7 +143,7 @@ class MainText(object):
 
         xml = preprocessToXml(self.text)
         xml = xml.replace('&lt;', '<').replace('&gt;', '>')
-        soup = BeautifulSoup(xml)
+        soup = BeautifulSoup(condition_for_soup(xml))
         root = soup.find('root')
         out = ''
         for child in root.childGenerator():
