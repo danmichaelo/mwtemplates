@@ -36,7 +36,10 @@ def strcspn(str1, str2, start=0, length=-1, debug=False):
 
 
 def htmlspecialchars(text):
-    return text.replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
+    return text.replace("&", "&amp;") \
+               .replace('"', "&quot;") \
+               .replace("<", "&lt;") \
+               .replace(">", "&gt;")
 
 
 class PPDStack(object):
@@ -80,10 +83,12 @@ class PPDStack(object):
             self.stack.append(data)
         else:
             self.stack.append(PPDStackElement(data))
-        logger.debug('+ Adding to stack: %s...', self.top.data['open']*self.top.data['count'])
+        logger.debug('+ Adding to stack: %s...',
+                     self.top.data['open']*self.top.data['count'])
 
     def pop(self):
-        logger.debug('- Popping from stack: ...%s', self.top.data['close']*self.top.data['count'])
+        logger.debug('- Popping from stack: ...%s',
+                     self.top.data['close']*self.top.data['count'])
         return self.stack.pop()
 
     def addPart(self, s=''):
@@ -145,9 +150,10 @@ class PPDStackElement(object):
 
 class PPDPart(dict):
     # Optional member variables:
-    #   eqpos        Position of equals sign in output accumulator
-    #   commentEnd   Past-the-end input pointer for the last comment encountered
-    #   visualEnd    Past-the-end input pointer for the end of the accumulator minus comments
+    #   eqpos       Position of equals sign in output accumulator
+    #   commentEnd  Past-the-end input pointer for the last comment encountered
+    #   visualEnd   Past-the-end input pointer for the end of the accumulator
+    #               minus comments
 
     def __init__(self, out=''):
         self['out'] = out
@@ -187,25 +193,25 @@ def preprocessToXml(text):
     # tja..
     xmlishRegex = '|'.join(['math', 'nowiki'])
 
-    # Use "A" modifier (anchored) instead of "^", because ^ doesn't work with an offset
+    # Use "A" modifier (anchored) instead of "^", because ^ doesn't work
+    # with an offset
     # DM: A is not available in Python, so let's try ^
-    elementsRegex = re.compile(r'^(%s)(?:\s|\/>|>)|(!--)' % xmlishRegex, re.I)
+    elementsRegex = re.compile(r'^(%s)(?:\s|\/>|>)|(!--)' % xmlishRegex, 
+    						   flags=re.I)
     #r'~(%s)(?:\s|\/>|>)|(!--)~iA' % xmlishRegex
 
     stack = PPDStack()
     searchBase = '[{<'     # removed \n for now
-    revText = text[::-1]   # For fast reverse searches
     lengthText = len(text)
 
     stack.accum = '<root>'        # Current accumulator
     findEquals = False            # True to find equals signs in arguments
     findPipe = False              # True to take notice of pipe characters
-    inHeading = False             # True if $i is inside a possible heading
-    noMoreGT = False              # True if there are no more greater-than (>) signs right of $i
-    #fakeLineStart = True          # Do a line-start run without outputting an LF character
+    noMoreGT = False              # True if there are no more greater-than (>)
+                                  # signs right of $i
 
     cnt = 0
-    i = 0       # Input pointer, starts out pointing to a pseudo-newline before the start
+    i = 0       # Input pointer, points to a pseudo-newline before start
     while True:
         cnt += 1
         if cnt > 100000:
@@ -233,11 +239,13 @@ def preprocessToXml(text):
 
         rule = None
         # Output literal section, advance input counter
-        logger.debug('  [%4d] Advancing pointer until: %s', i, search.replace('\n', '\\n'))
+        logger.debug('  [%4d] Advancing pointer until: %s', i,
+                     search.replace('\n', '\\n'))
         literalLength = strcspn(text, search, i, debug=True)
         if literalLength > 0:
             stack.accum += htmlspecialchars(text[i:i+literalLength])
-            logger.debug('  [%4d] Found literal section of length %d: "%s"', i, literalLength, text[i:i+literalLength])
+            logger.debug('  [%4d] Found literal section of length %d: "%s"',
+                         i, literalLength, text[i:i+literalLength])
             i += literalLength
 
         if i >= len(text):
@@ -247,7 +255,8 @@ def preprocessToXml(text):
             #     found = 'line-end';
             # else:
                 # All done
-                logger.debug('  [%4d] Reached the end (%d chars)', i, len(text))
+                logger.debug('  [%4d] Reached the end (%d chars)',
+                             i, len(text))
                 break
         else:
             curChar = text[i]
@@ -278,7 +287,9 @@ def preprocessToXml(text):
                 matches = elementsRegex.match(text[i+1:])
                 if matches is None:
                     # Element name missing or not listed
-                    logger.debug('  [%4d] Found tag with element name missing or not listed (excerpt: %s...)', i, text[i+1:i+1+10])
+                    logger.debug('  [%4d] Found tag with element name missing'
+                                 + ' or not listed (excerpt: %s...)',
+                                 i, text[i+1:i+1+10])
                     stack.accum += '&lt;'
                     i += 1
                     continue
@@ -288,16 +299,17 @@ def preprocessToXml(text):
                 # preprocessor. We just output them as they are, instead of
                 # wrapping them in <comment> and htmlspecialchar-ize them.
                 if matches.lastindex >= 2 and matches.group(2) == '!--':
-                    # To avoid leaving blank lines, when a comment is both preceded
-                    # and followed by a newline (ignoring spaces), trim leading and
-                    # trailing spaces and one of the newlines.
+                    # To avoid leaving blank lines, when a comment is both 
+                    # preceded and followed by a newline (ignoring spaces), 
+                    # trim leading and trailing spaces and one of the newlines.
 
                     # Find the end
                     endPos = text.find('-->', i + 4)
                     if endPos == -1:
                         # Unclosed comment in input, runs to end
                         inner = text[i:]
-                        # Original code: stack.accum += '<comment>' + htmlspecialchars(inner) + '</comment>'
+                        # Original code: stack.accum += '<comment>' +
+                        # htmlspecialchars(inner) + '</comment>'
                         stack.accum += htmlspecialchars(inner)
                         i = lengthText
                     else:
@@ -309,7 +321,6 @@ def preprocessToXml(text):
                     continue
 
                 name = matches.group(1)
-                lowerName = name.lower()
                 attrStart = i + len(name) + 1
                 logger.debug('  [%4d] Found xml tag: %s', i, name)
 
@@ -324,7 +335,6 @@ def preprocessToXml(text):
                     i += 1
                     continue
 
-                tagStartPos = i
                 if text[tagEndPos-1] == '/':
                     attrEnd = tagEndPos - 1
                     inner = ''
@@ -333,7 +343,8 @@ def preprocessToXml(text):
                 else:
                     attrEnd = tagEndPos
                     # Find closing tag
-                    matches = re.search('<\/%s\s*>' % re.escape(name), text[tagEndPos+1:])
+                    matches = re.search('<\/%s\s*>' % re.escape(name),
+                                        text[tagEndPos+1:])
                     if matches:
                         inner = text[tagEndPos+1:tagEndPos+1+matches.start()]
                         i = tagEndPos + 1 + matches.start() + len(matches.group(0))
@@ -350,14 +361,17 @@ def preprocessToXml(text):
                 else:
                     attr = text[attrStart:attrEnd]
 
-                stack.accum += '&lt;%s%s&gt;%s%s' % (htmlspecialchars(name), htmlspecialchars(attr), htmlspecialchars(inner), htmlspecialchars(close))
+                tmp = (htmlspecialchars(name), htmlspecialchars(attr),
+                       htmlspecialchars(inner), htmlspecialchars(close))
+                stack.accum += '&lt;%s%s&gt;%s%s' % tmp
 
             elif found == 'open':
                 # count opening brace characters
                 count = strspn(text, curChar, i)
                 #print "Found %d open braces" % count
 
-                # we need to add to stack only if opening brace count is enough for one of the rules
+                # we need to add to stack only if opening brace count
+                # is enough for one of the rules
                 if count >= rule['min']:
 
                     # Add it to the stack
@@ -371,7 +385,6 @@ def preprocessToXml(text):
                     flags = stack.getFlags()
                     findPipe = flags['findPipe']
                     findEquals = flags['findEquals']
-                    inHeading = flags['inHeading']
 
                 else:
                     stack.accum += curChar * count
@@ -383,30 +396,35 @@ def preprocessToXml(text):
                 # lets check if there are enough characters for closing brace
                 maxCount = piece.data['count']
                 count = strspn(text, curChar, i, maxCount)
-                logger.debug('  [%4d] Found %d of %d close braces', i, count, maxCount)
+                logger.debug('  [%4d] Found %d of %d close braces',
+                             i, count, maxCount)
 
-                # check for maximum matching characters (if there are 5 closing
-                # characters, we will probably need only 3 - depending on the rules)
+                # check for maximum matching characters (if there are 5
+                # closing characters, we will probably need only
+                # 3 - depending on the rules)
                 rule = rules[piece.data['open']]
                 if count > rule['max']:
-                    # The specified maximum exists in the callback array, unless the caller
-                    # has made an error
+                    # The specified maximum exists in the callback array,
+                    # unless the caller has made an error
                     matchingCount = rule['max']
                 else:
-                    # Count is less than the maximum
-                    # Skip any gaps in the callback array to find the true largest match
-                    # Need to use array_key_exists not isset because the callback can be null
+                    # Count is less than the maximum. Skip any gaps in the
+                    # callback array to find the true largest match
+                    # Need to use array_key_exists not isset because the
+                    # callback can be null
                     matchingCount = count
-                    while matchingCount > 0 and matchingCount not in rule['names'].keys():
+                    while matchingCount > 0 \
+                	and matchingCount not in rule['names'].keys():
                         matchingCount -= 1
 
                 if matchingCount <= 0:
                     # No matching element found in callback array
                     # Output a literal closing brace and continue
 
-                    #$accum .= htmlspecialchars( str_repeat( $curChar, $count ) );
+                    #$accum .= htmlspecialchars(str_repeat($curChar,$count));
                     stack.accum += curChar * count
-                    logger.debug('         ... which is not enough for current rule. Continuing...')
+                    logger.debug('         ... which is not enough for'
+                                 + ' current rule. Continuing...')
 
                     i += count
                     continue
@@ -414,19 +432,20 @@ def preprocessToXml(text):
                 name = rule['names'][matchingCount]
                 if name is None:
                     # No element, just literal text
-                    element = piece.breakSyntax(matchingCount) + rule['end']*matchingCount
+                    element = piece.breakSyntax(matchingCount) \
+                        + rule['end']*matchingCount
 
                 else:
                     # Create XML element
-                    # Note: $parts is already XML, does not need to be encoded further
+                    # Note: $parts is already XML, does not need to be encoded
                     parts = piece.parts
                     # print type(parts)
                     # logger.debug('%s', ', '.join([p for p in parts]))
                     title = parts[0].out
                     del parts[0]
 
-                    # The invocation is at the start of the line if lineStart is set in
-                    # the stack, and all opening brackets are used up.
+                    # The invocation is at the start of the line if lineStart
+                    # is set in the stack and all opening brackets are used up
                     if maxCount == matchingCount and piece.data['lineStart']:
                         attr = ' lineStart="1"'
                     else:
@@ -441,9 +460,11 @@ def preprocessToXml(text):
                         if 'eqpos' in part:
                             argName = part.out[0:part.eqpos]
                             argValue = part.out[part.eqpos+1:]
-                            element += '<part><name>%s</name>=<value>%s</value></part>' % (argName, argValue)
+                            element += '<part><name>%s</name>=' % argName \
+                                + '<value>%s</value></part>' % argValue
                         else:
-                            element += '<part><name index="%s" /><value>%s</value></part>' % (argIndex, part.out)
+                            element += '<part><name index="%s" />' % argIndex \
+                                + '<value>%s</value></part>' % part.out
                             argIndex += 1
                     element += '</%s>' % name
 
@@ -453,11 +474,12 @@ def preprocessToXml(text):
                 # Unwind the stack
                 stack.pop()
 
-                # Re-add the old stack element if it still has unmatched opening characters remaining
+                # Re-add the old stack element if it still has unmatched
+                # opening characters remaining
                 if matchingCount < piece.data['count']:
                     piece.parts = [PPDPart()]
                     piece.data['count'] -= matchingCount
-                    # do we still qualify for any callback with remaining count?
+                    # do we still qualify for any callback with remaining cnt?
                     omin = rules[piece.data['open']]['min']
                     if piece.data['count'] >= omin:
                         stack.append(piece)
@@ -467,7 +489,6 @@ def preprocessToXml(text):
                 flags = stack.getFlags()
                 findPipe = flags['findPipe']
                 findEquals = flags['findEquals']
-                inHeading = flags['inHeading']
 
                 # Add XML element to the enclosing accumulator
                 stack.accum += element

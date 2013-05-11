@@ -1,7 +1,11 @@
 #encoding=utf-8
 from __future__ import unicode_literals
 import unittest
-import nose
+import sys
+import os
+myPath = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, myPath + '/../')
+
 from mwtemplates import TemplateEditor
 
 
@@ -103,7 +107,7 @@ class TestTemplateEditor2(unittest.TestCase):
 
     def test_commentswithintemplates(self):
         arg = '<!-- kommentartest -->'
-        text = 'Lorem ipsum {{flagg\n|land=%s|param2=test\n }} dolor sit amet' % arg
+        text = 'Lorem ipsum {{flagg\n|land=%s|param2=test\n }} dolor' % arg
         dp = TemplateEditor(text)
         self.assertEqual(dp.templates['flagg'][0].parameters['land'], arg)
 
@@ -123,12 +127,6 @@ class TestTemplateEditor2(unittest.TestCase):
         text = 'Lorem ipsum {{flagg|land=%s}} dolor sit amet' % arg
         dp = TemplateEditor(text)
         self.assertEqual(dp.templates['flagg'][0].parameters['land'], arg)
-
-    # def test_doubleparam(self):
-    #     # should fail if the same named parameter is passed twice to a template
-    #     text = 'Lorem ipsum {{ Infoboks A\n| maks=2 |maks=3\n}} dolor sit amet'
-    #     dp = TemplateEditor(text)
-    #     self.assertRaises(DanmicholoParseError, lambda: dp.templates)
 
     def test_malprefix(self):
         text = 'Lorem ipsum {{Mal:Flagg}} og {{Template:Flagg}} og {{Flagg}}.'
