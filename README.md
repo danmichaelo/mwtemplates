@@ -1,14 +1,14 @@
-danmicholoparser
+mwtemplates
 ================
 
-[![Build Status](https://travis-ci.org/danmichaelo/danmicholoparser.png?branch=master)](https://travis-ci.org/danmichaelo/danmicholoparser)
+[![Build Status](https://travis-ci.org/danmichaelo/mwtemplates.png?branch=master)](https://travis-ci.org/danmichaelo/mwtemplates)
 
-Simple wikitext template parser and editor, based on a python rewrite of preprocessor.php.
+Simple wikitext template parser and editor, based on a python rewrite of preprocessorDOM.php.
 
 Tested with Python 2.7
 
 ```
-from danmicholoparser import TemplateEditor
+from mwtemplates import TemplateEditor
 txt = u"""
 {{Infoboks geografi
 | kart = Svalbard_kart1.png

@@ -61,6 +61,10 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 
+class TemplateParseError(Exception):
+    pass
+
+
 def most_common(lst):
     return max(set(lst), key=lst.count)
 
@@ -117,7 +121,7 @@ def get_wikitext(node):
         elif child.tag == 'part':
             tmp += '|' + get_wikitext(child)
         else:
-            raise StandardError("Found unknown tag: %s" % etree.tostring(child))
+            raise TemplateParseError("Found unknown tag: %s" % etree.tostring(child))
         if child.tail is not None:
             tmp += child.tail
     return tmp
