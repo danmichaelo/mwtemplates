@@ -71,6 +71,8 @@ class MainText(object):
 
     @property
     def maintext(self):
+        self.parse_errors = []
+
         xml = preprocessToXml(self.text)
         xml = xml.replace('&lt;', '<').replace('&gt;', '>')
         #print xml.encode('utf-8')
@@ -78,9 +80,9 @@ class MainText(object):
         root = fromstring(condition_for_soup(xml))
 
         out = u''
+        if root.text:
+            out += root.text
         for child in root.iterchildren():
-            if child.prefix:
-                out += child.prefix
             if child.tail:
                 out += child.tail
 
@@ -136,10 +138,10 @@ class MainText(object):
         self.parse_errors = []
 
         # use cached value if available
-        try:
-            return self._maintext
-        except:
-            pass
+        # try:
+        #     return self._maintext
+        # except:
+        #     pass
 
         xml = preprocessToXml(self.text)
         xml = xml.replace('&lt;', '<').replace('&gt;', '>')
@@ -203,10 +205,10 @@ class MainText(object):
         self.parse_errors = []
 
         # use cached value if available
-        try:
-            return self._maintext
-        except:
-            pass
+        # try:
+        #     return self._maintext
+        # except:
+        #     pass
 
         out = ''
 
@@ -222,11 +224,11 @@ class MainText(object):
         # BS introduces paragraphs, so let's remove them
         souped = re.sub(r'<(?:/)?p>', '', souped)
 
-        if logger.isEnabledFor(logging.DEBUG):
-            print 'Writing soup.dump'
-            f = open('soup.dump', 'w')
-            f.write(souped.encode('utf-8'))
-            f.close()
+        # if logger.isEnabledFor(logging.DEBUG):
+        #     print 'Writing soup.dump'
+        #     f = open('soup.dump', 'w')
+        #     f.write(souped.encode('utf-8'))
+        #     f.close()
 
         buf = '00'       # keep track of last two characters
         ptree = ['top']  # simple parse tree
