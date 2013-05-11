@@ -2,6 +2,8 @@ mwtemplates
 ================
 
 [![Build Status](https://travis-ci.org/danmichaelo/mwtemplates.png?branch=master)](https://travis-ci.org/danmichaelo/mwtemplates)
+[![Coverage Status](https://coveralls.io/repos/danmichaelo/mwtemplates/badge.png)](https://coveralls.io/r/danmichaelo/mwtemplates)
+
 
 Simple wikitext template parser and editor, based on a python rewrite of preprocessorDOM.php.
 
