@@ -454,18 +454,21 @@ class Template(object):
 
 
 class TemplateEditor(object):
-    """
+    r"""
     TemplateEditor is the main class to work with templates in some wikitext.
 
     Example:
 
-    >>> wikitext = '{{infobox country \n' \
-    >>>        + '|name=Fantasia \n' \
-    >>>        + '|population_census=4,830,300 }}'
+    >>> wikitext = '{{infobox country\n' \
+    ...    + '|name=Fantasia\n' \
+    ...    + '|population_census=4,830,300 }}'
     >>> editor = TemplateEditor(wikitext)
     >>> tpl = editor.templates['Infobox country'][0]
     >>> tpl.parameters['population_census'] = '5,033,676'
     >>> print editor.wikitext()
+    {{infobox country
+    |name=Fantasia
+    |population_census=5,033,676 }}
     """
 
     def __init__(self, text):

@@ -14,9 +14,9 @@ logger.setLevel(logging.DEBUG)
 def strspn(str1, str2, start=0, length=-1):
     str2 = re.escape(str2)
     if length == -1:
-        m = re.match(r'^(['+str2+']*)', str1[start:])
+        m = re.match(r'^([' + str2 + ']*)', str1[start:])
     else:
-        m = re.match(r'^(['+str2+']{,'+str(length)+'})', str1[start:])
+        m = re.match(r'^([' + str2 + ']{,' + str(length) + '})', str1[start:])
     if m:
         return len(m.group(1))
     else:
@@ -26,9 +26,9 @@ def strspn(str1, str2, start=0, length=-1):
 def strcspn(str1, str2, start=0, length=-1, debug=False):
     str2 = re.escape(str2)
     if length == -1:
-        m = re.match(r'^([^'+str2+']*)', str1[start:])
+        m = re.match(r'^([^' + str2 + ']*)', str1[start:])
     else:
-        m = re.match(r'^([^'+str2+']{,'+str(length)+'})', str1[start:])
+        m = re.match(r'^([^' + str2 + ']{,' + str(length) + '})', str1[start:])
     if m:
         return len(m.group(1))
     else:
@@ -84,11 +84,11 @@ class PPDStack(object):
         else:
             self.stack.append(PPDStackElement(data))
         logger.debug('+ Adding to stack: %s...',
-                     self.top.data['open']*self.top.data['count'])
+                     self.top.data['open'] * self.top.data['count'])
 
     def pop(self):
         logger.debug('- Popping from stack: ...%s',
-                     self.top.data['close']*self.top.data['count'])
+                     self.top.data['close'] * self.top.data['count'])
         return self.stack.pop()
 
     def addPart(self, s=''):
@@ -124,10 +124,9 @@ class PPDStackElement(object):
     def getFlags(self):
         partCount = len(self.parts)
         findPipe = self.data['open'] != '\n' and self.data['open'] != '['
-        lpart = self.parts[-1]
         return {
             'findPipe': findPipe,
-            'findEquals': findPipe and partCount > 1 and not 'eqpos' in lpart,
+            'findEquals': findPipe and partCount > 1 and not 'eqpos' in self.parts[-1],
             'inHeading': self.data['open'] == r'\n'
         }
 
@@ -138,7 +137,7 @@ class PPDStackElement(object):
         else:
             if openingCount is False:
                 openingCount = self.data['count']
-            s = self.data['open']*openingCount
+            s = self.data['open'] * openingCount
             first = True
             for part in self.parts:
                 if first:
@@ -244,9 +243,9 @@ def preprocessToXml(text):
                      search.replace('\n', '\\n'))
         literalLength = strcspn(text, search, i, debug=True)
         if literalLength > 0:
-            stack.accum += htmlspecialchars(text[i:i+literalLength])
+            stack.accum += htmlspecialchars(text[i:i + literalLength])
             logger.debug('  [%4d] Found literal section of length %d: "%s"',
-                         i, literalLength, text[i:i+literalLength])
+                         i, literalLength, text[i:i + literalLength])
             i += literalLength
 
         if i >= len(text):
@@ -285,12 +284,12 @@ def preprocessToXml(text):
                 matches = False
 
                 # Determine element name
-                matches = elementsRegex.match(text[i+1:])
+                matches = elementsRegex.match(text[i + 1:])
                 if matches is None:
                     # Element name missing or not listed
                     logger.debug('  [%4d] Found tag with element name missing'
                                  + ' or not listed (excerpt: %s...)',
-                                 i, text[i+1:i+1+10])
+                                 i, text[i + 1:i + 1 + 10])
                     stack.accum += '&lt;'
                     i += 1
                     continue
@@ -317,7 +316,7 @@ def preprocessToXml(text):
                         startPos = i
                         endPos += 2
                         i = endPos + 1
-                        inner = text[startPos:endPos+1]
+                        inner = text[startPos:endPos + 1]
                         stack.accum += htmlspecialchars(inner)
                     continue
 
@@ -337,7 +336,7 @@ def preprocessToXml(text):
                     i += 1
                     continue
 
-                if text[tagEndPos-1] == '/':
+                if text[tagEndPos - 1] == '/':
                     attrEnd = tagEndPos - 1
                     inner = ''
                     i = tagEndPos + 1
@@ -346,16 +345,16 @@ def preprocessToXml(text):
                     attrEnd = tagEndPos
                     # Find closing tag
                     matches = re.search('<\/%s\s*>' % re.escape(name),
-                                        text[tagEndPos+1:])
+                                        text[tagEndPos + 1:])
                     if matches:
-                        inner = text[tagEndPos+1:tagEndPos+1+matches.start()]
+                        inner = text[tagEndPos + 1:tagEndPos + 1 + matches.start()]
                         i = tagEndPos + 1 + matches.start() \
                             + len(matches.group(0))
                         close = matches.group(0)
                     else:
                         # No end tag -- let it run out to the end of the text
                         logger.debug('         No end tag found')
-                        inner = text[tagEndPos+1:]
+                        inner = text[tagEndPos + 1:]
                         i = lengthText
                         close = ''
 
@@ -382,7 +381,7 @@ def preprocessToXml(text):
                         'open': curChar,
                         'close': rule['end'],
                         'count': count,
-                        'lineStart': (i > 0 and text[i-1] == r'\n')
+                        'lineStart': (i > 0 and text[i - 1] == r'\n')
                     }
                     stack.append(piece)
                     flags = stack.getFlags()
@@ -436,7 +435,7 @@ def preprocessToXml(text):
                 if name is None:
                     # No element, just literal text
                     element = piece.breakSyntax(matchingCount) \
-                        + rule['end']*matchingCount
+                        + rule['end'] * matchingCount
 
                 else:
                     # Create XML element
@@ -456,13 +455,13 @@ def preprocessToXml(text):
 
                     element = '<%s%s>' % (name, attr)
                     element += '<title>%s</title>' % title
-                    logger.debug(' '+element)
+                    logger.debug(' ' + element)
 
                     argIndex = 1
                     for part in parts:
                         if 'eqpos' in part:
                             argName = part.out[0:part.eqpos]
-                            argValue = part.out[part.eqpos+1:]
+                            argValue = part.out[part.eqpos + 1:]
                             element += '<part><name>%s</name>=' % argName \
                                 + '<value>%s</value></part>' % argValue
                         else:
