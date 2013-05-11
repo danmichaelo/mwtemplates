@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 import unittest
 import nose
-from danmicholoparser import DanmicholoParseError, TemplateEditor
+from mwtemplates import TemplateEditor
 
 
 class TestTemplateEditor2(unittest.TestCase):
@@ -157,6 +157,7 @@ class TestTemplateEditor2(unittest.TestCase):
         te = TemplateEditor(text)
         x = te.templates.items()
         self.assertEqual(x[0][0], 'Ipsum')
+
     # MODIFICATION TESTS
 
     def test_namechange(self):

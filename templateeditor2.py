@@ -1,6 +1,6 @@
 #encoding=utf-8
 """
-DanmicholoParser
+mwtemplates
 Copyright (c) 2012-2013 Dan Michael O. Heggø
 
 Simple wikitext template parser and editor
@@ -54,7 +54,7 @@ import re
 from lxml import etree
 from StringIO import StringIO
 #from odict import odict
-from danmicholoparser.preprocessor import preprocessToXml
+from mwtemplates.preprocessor import preprocessToXml
 from unittest.util import safe_repr
 
 logger = logging.getLogger()

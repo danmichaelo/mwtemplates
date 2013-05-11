@@ -6,7 +6,7 @@ from unittest.util import safe_repr
 import logging
 #import termstyle
 import nose
-from danmicholoparser import preprocessToXml
+from mwtemplates import preprocessToXml
 
 def htmlspecialchars(text):
     return text.replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")

@@ -5,7 +5,7 @@ import mwclient
 import random
 import logging
 import nose
-from danmicholoparser import DanmicholoParseError, TemplateEditor
+from mwtemplates import TemplateEditor
 
 print
 print "Note: This test requires internet connectivity!"
