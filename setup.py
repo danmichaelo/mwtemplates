@@ -31,6 +31,6 @@ setup(name='mwtemplates',
       keywords='mediawiki',
       packages=['mwtemplates'],
       install_requires=['lxml', 'odict'],
-      tests_require=['pytest'],
+      tests_require=['pytest', 'pytest-cov', 'pytest-pep8'],
       cmdclass={'test': PyTest}
       )

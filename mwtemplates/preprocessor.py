@@ -124,9 +124,10 @@ class PPDStackElement(object):
     def getFlags(self):
         partCount = len(self.parts)
         findPipe = self.data['open'] != '\n' and self.data['open'] != '['
+        lpart = self.parts[-1]
         return {
             'findPipe': findPipe,
-            'findEquals': findPipe and partCount > 1 and not 'eqpos' in self.parts[-1],
+            'findEquals': findPipe and partCount > 1 and not 'eqpos' in lpart,
             'inHeading': self.data['open'] == r'\n'
         }
 
@@ -196,8 +197,8 @@ def preprocessToXml(text):
     # Use "A" modifier (anchored) instead of "^", because ^ doesn't work
     # with an offset
     # DM: A is not available in Python, so let's try ^
-    elementsRegex = re.compile(r'^(%s)(?:\s|\/>|>)|(!--)' % xmlishRegex, 
-    						   flags=re.I)
+    elementsRegex = re.compile(r'^(%s)(?:\s|\/>|>)|(!--)' % xmlishRegex,
+                               flags=re.I)
     #r'~(%s)(?:\s|\/>|>)|(!--)~iA' % xmlishRegex
 
     stack = PPDStack()
@@ -295,12 +296,12 @@ def preprocessToXml(text):
                     continue
 
                 # Handle comments:
-                # DM: We handle comments a bit differently than the original PHP
-                # preprocessor. We just output them as they are, instead of
+                # DM: We handle comments a bit differently than the original
+                # PHP preprocessor. We just output them as they are, instead of
                 # wrapping them in <comment> and htmlspecialchar-ize them.
                 if matches.lastindex >= 2 and matches.group(2) == '!--':
-                    # To avoid leaving blank lines, when a comment is both 
-                    # preceded and followed by a newline (ignoring spaces), 
+                    # To avoid leaving blank lines, when a comment is both
+                    # preceded and followed by a newline (ignoring spaces),
                     # trim leading and trailing spaces and one of the newlines.
 
                     # Find the end
@@ -328,7 +329,8 @@ def preprocessToXml(text):
                 tagEndPos = -1 if noMoreGT else text.find('>', attrStart)
                 if tagEndPos == -1:
                     # Infinite backtrack
-                    # Disable tag search to prevent worst-case O(N^2) performance
+                    # Disable tag search to prevent worst-case O(N^2)
+                    # performance
                     logger.debug('infinite backtrack')
                     noMoreGT = True
                     stack.accum += '&lt;'
@@ -347,7 +349,8 @@ def preprocessToXml(text):
                                         text[tagEndPos+1:])
                     if matches:
                         inner = text[tagEndPos+1:tagEndPos+1+matches.start()]
-                        i = tagEndPos + 1 + matches.start() + len(matches.group(0))
+                        i = tagEndPos + 1 + matches.start() \
+                            + len(matches.group(0))
                         close = matches.group(0)
                     else:
                         # No end tag -- let it run out to the end of the text
@@ -414,7 +417,7 @@ def preprocessToXml(text):
                     # callback can be null
                     matchingCount = count
                     while matchingCount > 0 \
-                	and matchingCount not in rule['names'].keys():
+                            and matchingCount not in rule['names'].keys():
                         matchingCount -= 1
 
                 if matchingCount <= 0:

@@ -121,8 +121,8 @@ def get_wikitext(node):
         elif child.tag == 'part':
             tmp += '|' + get_wikitext(child)
         else:
-            raise TemplateParseError("Found unknown tag: %s" 
-            						 % etree.tostring(child))
+            raise TemplateParseError("Found unknown tag: %s"
+                                     % etree.tostring(child))
         if child.tail is not None:
             tmp += child.tail
     return tmp
@@ -459,6 +459,9 @@ class TemplateEditor(object):
 
     Example:
 
+    >>> wikitext = '{{infobox country \n' \
+    >>>        + '|name=Fantasia \n' \
+    >>>        + '|population_census=4,830,300 }}'
     >>> editor = TemplateEditor(wikitext)
     >>> tpl = editor.templates['Infobox country'][0]
     >>> tpl.parameters['population_census'] = '5,033,676'

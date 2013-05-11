@@ -1,3 +1,2 @@
 odict
-beautifulsoup4
 lxml
