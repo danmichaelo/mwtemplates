@@ -6,9 +6,11 @@ from setuptools import setup
 from setuptools.command.test import test as TestCommand
 import sys
 
+
 def find_requirements(filename):
     with open(filename, 'r') as f:
         return f.read().splitlines()
+
 
 class PyTest(TestCommand):
 
@@ -32,7 +34,7 @@ setup(name='mwtemplates',
       url='https://github.com/danmichaelo/mwtemplates',
       license='MIT',
       keywords='mediawiki',
-      install_requires=find_requirements('requirements.txt'), 
+      install_requires=find_requirements('requirements.txt'),
       #tests_require=find_requirements('test_requirements.txt'),
       #cmdclass={'test': PyTest},
       packages=['mwtemplates']
