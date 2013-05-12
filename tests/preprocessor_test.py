@@ -23,8 +23,7 @@ class TestPreprocessor(unittest.TestCase):
         pass
 
     def test_empty(self):
-        with self.assertRaises(TypeError):
-            preprocessToXml()
+        self.assertRaises(TypeError, preprocessToXml)
 
     def test_simple(self):
         text = 'Lorem ipsum'
