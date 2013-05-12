@@ -55,7 +55,6 @@ from lxml import etree
 from StringIO import StringIO
 #from odict import odict
 from mwtemplates.preprocessor import preprocessToXml
-from unittest.util import safe_repr
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
@@ -357,7 +356,7 @@ class Parameter(object):
         return int(self.__unicode__())
 
     def __repr__(self):
-        return safe_repr(self._value.strip())
+        return self._value.strip()
 
 
 class Template(object):
@@ -381,7 +380,7 @@ class Template(object):
                 self.parameters.add(elem)
 
     def __repr__(self):
-        return safe_repr(self.key)
+        return self.key
 
     @property
     def key(self):

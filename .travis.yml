@@ -7,6 +7,7 @@ python:
 
 install: 
   - pip install -r requirements.txt --use-mirrors
+  - python setup.py install
 
 before_script:
   - pip install -r test_requirements.txt --use-mirrors
