@@ -7,6 +7,8 @@ Simple wikitext template parser and editor
 """
 
 from __future__ import unicode_literals
+from __future__ import print_function
+import sys
 
 # <root>LLorem ipsum <template>
 # <title>
@@ -52,8 +54,10 @@ from __future__ import unicode_literals
 import logging
 import re
 from lxml import etree
-from StringIO import StringIO
-#from odict import odict
+try:
+    from io import StringIO  # Python 3
+except ImportError:
+    from StringIO import StringIO  # Python 2
 from mwtemplates.preprocessor import preprocessToXml
 
 logger = logging.getLogger()
@@ -220,7 +224,10 @@ class Parameters(object):
         raise KeyError
 
     def __setitem__(self, name, val):
-        if type(val) in [unicode, str, int]:
+        # python2   <->  python3
+        # 'unicode' <-> 'str'
+        # 'str'     <-> 'bytes'
+        if type(val).__name__ in ['unicode', 'str', 'bytes' 'int']:
             for entry in self._entries:
                 if entry.key == name:
                     # parameter changed:
@@ -308,7 +315,7 @@ class Parameter(object):
         logger.debug('Parameter "%s" changed: "%s" -> "%s"',
                      self.key, self.value.strip(), val)
         whitespace = get_whitespace(self._value)
-        self._value = whitespace[0] + unicode(val) + whitespace[1]
+        self._value = whitespace[0] + val + whitespace[1]
         # self.node.xpath('value')[0].text = self._value
         self.node.replace(self.node.xpath('value')[0],
                           etree.XML('<value>' + self._value + '</value>'))
@@ -333,10 +340,12 @@ class Parameter(object):
         return self._value.strip()
 
     def __eq__(self, param):
-        if type(param) == unicode or type(param) == int:
-            return self.__unicode__() == unicode(param)
-        elif type(param) == str:
+        if type(param).__name__ == 'unicode':
+            return self.__unicode__() == param
+        elif type(param).__name__ == 'str':
             return self.__str__() == param
+        elif type(param).__name__ == 'int':
+            return int(self.__unicode__()) == param
         else:
             return False
 
@@ -347,7 +356,10 @@ class Parameter(object):
         return self._value.strip()
 
     def __str__(self):
-        return self.__unicode__().encode('utf-8')
+        if sys.version_info > (3, 0):
+            return self.__unicode__()
+        else:
+            return self.__unicode__().encode('utf-8')
 
     def __float__(self):
         return float(self.__unicode__())
@@ -385,7 +397,7 @@ class Template(object):
     @property
     def key(self):
         tmp = self._name.strip()
-        tmp = re.sub(ur'^(?:[Mm]al|[Tt]emplate):', '', tmp)
+        tmp = re.sub(r'^(?:[Mm]al|[Tt]emplate):', '', tmp)
         return tmp[0].upper() + tmp[1:]
 
     @property
@@ -424,7 +436,10 @@ class Template(object):
         return tmp
 
     def __str__(self):
-        return self.__unicode__().encode('utf-8')
+        if sys.version_info > (3, 0):
+            return self.__unicode__()
+        else:
+            return self.__unicode__().encode('utf-8')
 
     def remove(self):
         self.__del__()
@@ -464,7 +479,7 @@ class TemplateEditor(object):
     >>> editor = TemplateEditor(wikitext)
     >>> tpl = editor.templates['Infobox country'][0]
     >>> tpl.parameters['population_census'] = '5,033,676'
-    >>> print editor.wikitext()
+    >>> print(editor.wikitext())
     {{infobox country
     |name=Fantasia
     |population_census=5,033,676 }}

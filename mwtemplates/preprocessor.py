@@ -167,7 +167,7 @@ class PPDPart(dict):
 
 def preprocessToXml(text):
 
-    if type(text) != unicode and type(text) != str:
+    if type(text).__name__ != 'unicode' and type(text).__name__ != 'str':
         raise StandardError("preprocessToXml only accepts unicode or str")
 
     rules = {

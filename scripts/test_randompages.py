@@ -4,9 +4,7 @@ import mwclient
 import logging
 from mwtemplates import TemplateEditor
 
-print
-print "Note: This test requires internet connectivity!"
-print
+# "Note: This test requires internet connectivity!"
 
 site = mwclient.Site('no.wikipedia.org')
 

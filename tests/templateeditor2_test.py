@@ -24,7 +24,10 @@ class TestTemplateEditor2(unittest.TestCase):
         # Check that templates can be found
         text = 'Lorem ipsum {{lang}} dolor sit amet'
         te = TemplateEditor(text)
-        self.assertEqual(type(te.templates['lang'][0].name), unicode)
+        if sys.version_info > (3, 0):
+            self.assertEqual(type(te.templates['lang'][0].name).__name__, 'str')
+        else:
+            self.assertEqual(type(te.templates['lang'][0].name).__name__, 'unicode')
 
     def test_template_name(self):
         # Check that templates can be found
