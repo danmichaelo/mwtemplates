@@ -79,15 +79,15 @@ class TestPreprocessor(unittest.TestCase):
         self.assertEqual(xml, correct_xml)
 
     def test_simple_template_unicode(self):
-        name = u'Lårem øpsum'
+        name = 'Lårem øpsum'
         xml = preprocessToXml('{{%s}}' % name)
         correct_xml = '<root><template><title>%s</title>' % name \
             + '</template></root>'
         self.assertEqual(xml, correct_xml)
 
     def test_template_with_argument_unicode(self):
-        name = u'ølipsum'
-        arg = u'ål€en'
+        name = 'ølipsum'
+        arg = 'ål€en'
         xml = preprocessToXml('{{%s|%s}}' % (name, arg))
         correct_xml = '<root><template><title>%s</title>' % name \
             + '<part><name index="1" /><value>%s</value></part>' % arg \
