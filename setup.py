@@ -29,6 +29,9 @@ class PyTest(TestCommand):
 setup(name='mwtemplates',
       version='0.2dev',
       description='MediaWiki template parser and editor',
+      long_description=(
+          open('README.rst').read()
+      ),
       author='Dan Michael Heggø',
       author_email='danmichaelo@gmail.com',
       url='https://github.com/danmichaelo/mwtemplates',
@@ -37,5 +40,12 @@ setup(name='mwtemplates',
       install_requires=find_requirements('requirements.txt'),
       #tests_require=find_requirements('test_requirements.txt'),
       #cmdclass={'test': PyTest},
-      packages=['mwtemplates']
+      packages=['mwtemplates'],
+      classifiers=[
+          'Programming Language :: Python',
+          'Programming Language :: Python :: 2.6',
+          'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: 3.2',
+          'Programming Language :: Python :: 3.3',
+      ]
       )
