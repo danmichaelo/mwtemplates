@@ -385,7 +385,7 @@ class Template(object):
     @property
     def key(self):
         tmp = self._name.strip()
-        tmp = re.sub(ur'^(?:mal|template):', '', tmp, flags=re.I)
+        tmp = re.sub(ur'^(?:[Mm]al|[Tt]emplate):', '', tmp)
         return tmp[0].upper() + tmp[1:]
 
     @property
