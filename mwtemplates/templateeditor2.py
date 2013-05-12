@@ -426,7 +426,7 @@ class Template(object):
         return lst
 
     def __unicode__(self):
-        tmp = u'{{%s' % self.name
+        tmp = '{{%s' % self.name
         for param in self.parameters:
             tmp += '\n |%s=%s' % (param.key, param.value)
         if len(self.parameters) > 0:
