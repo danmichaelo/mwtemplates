@@ -6,8 +6,22 @@ mwtemplates
 
 
 Simple wikitext template parser and editor, based on a python rewrite of preprocessorDOM.php.
-
 Tested with Python 2.7
+
+To install requirements:
+
+```
+pip install -r requirements.txt
+```
+
+To run tests:
+
+```
+pip install -r test_requirements.txt
+py.test -x tests --pep8 mwtemplates -v --cov mwtemplates --doctest-modules
+```
+
+Example:
 
 ```
 from mwtemplates import TemplateEditor

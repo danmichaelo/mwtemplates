@@ -7,12 +7,13 @@ python:
 
 install: 
   - pip install -r requirements.txt --use-mirrors
+  #- python setup.py install
 
 before_script:
   - pip install -r test_requirements.txt --use-mirrors
 
 script: 
-  - py.test --pep8 mwtemplates -v --cov mwtemplates --doctest-modules tests/*_test.py
+  - py.test --pep8 mwtemplates -v --cov mwtemplates --doctest-modules -x tests
 
 after_success:
   - coveralls

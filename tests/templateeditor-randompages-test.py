@@ -1,15 +1,8 @@
 #encoding=utf-8
 from __future__ import unicode_literals
-import unittest
 import mwclient
-import random
 import logging
-import nose
 from mwtemplates import TemplateEditor
-
-import sys, os
-myPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, myPath + '/../')
 
 print
 print "Note: This test requires internet connectivity!"
@@ -17,7 +10,7 @@ print
 
 site = mwclient.Site('no.wikipedia.org')
 
-logger = logging.getLogger() # root logger
+logger = logging.getLogger()  # root logger
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 fh = logging.FileHandler('templateeditor-randompages-test.log', mode='w', encoding='utf-8')
@@ -35,10 +28,11 @@ logger.addHandler(fh)
 def test_randompages():
     n = 20
     #logger.info('Testing %d random pages. This may take some time.', n)
-    pages = site.random(namespace = 0, limit = n)
+    pages = site.random(namespace=0, limit=n)
     for page in pages:
         logger.info('Testing page: %s', page['title'])
         yield check_randompage, page['title']
+
 
 def check_randompage(pagename):
     logger.debug('Page: %s', pagename)
@@ -48,7 +42,3 @@ def check_randompage(pagename):
     outputtxt = dp.wikitext()
 
     assert inputtxt == outputtxt
-
-if __name__ == '__main__':
-    nose.main()
-

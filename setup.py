@@ -6,12 +6,15 @@ from setuptools import setup
 from setuptools.command.test import test as TestCommand
 import sys
 
+def find_requirements(filename):
+    with open(filename, 'r') as f:
+        return f.read().splitlines()
 
 class PyTest(TestCommand):
 
     def finalize_options(self):
         TestCommand.finalize_options(self)
-        self.test_args = []
+        self.test_args = ['-x', 'tests', '-v', '--doctest-modules', '--pep8', 'mwtemplates', '--cov', 'mwtemplates']
         self.test_suite = True
 
     def run_tests(self):
@@ -29,8 +32,8 @@ setup(name='mwtemplates',
       url='https://github.com/danmichaelo/mwtemplates',
       license='MIT',
       keywords='mediawiki',
-      packages=['mwtemplates'],
-      install_requires=['lxml', 'odict'],
-      tests_require=['pytest', 'pytest-cov', 'pytest-pep8'],
-      cmdclass={'test': PyTest}
+      install_requires=find_requirements('requirements.txt'), 
+      #tests_require=find_requirements('test_requirements.txt'),
+      #cmdclass={'test': PyTest},
+      packages=['mwtemplates']
       )
