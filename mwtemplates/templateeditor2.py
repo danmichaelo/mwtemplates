@@ -415,7 +415,10 @@ class Template(object):
         return name in self.parameters and self.parameters[name] != ''
 
     def get_anonymous_parameters(self):
-        """ Returns True if the parameter is defined and non-empty """
+        """
+        Returns the anonymous (non-named) parameters as a normal list, but with
+        indices starting on 1, not 0, to comply with standard mediawiki practice.
+        """
         tmp = {}
         for param in self.parameters:
             if type(param.key) == int:

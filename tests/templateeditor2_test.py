@@ -47,6 +47,13 @@ class TestTemplateEditor2(unittest.TestCase):
         e = TemplateEditor(text)
         self.assertFalse(1 in e.templates['lang'][0].parameters)
 
+    def test_find_param_3(self):
+        # Check using get_anonymous_parameters method
+        text = 'Lorem ipsum {{lang|fr}} dolor sit amet'
+        tpl = TemplateEditor(text).templates['lang'][0]
+        params = tpl.get_anonymous_parameters()
+        self.assertEqual(params[1], 'fr')
+
     def test_has_param_2(self):
         # has_param() should return true if non-empty
         text = 'Lorem ipsum {{lang|fr}} dolor sit amet'
