@@ -1,51 +1,32 @@
 #!/usr/bin/env python
 #encoding=utf-8
 
-#from distutils.core import setup
+# Bootstrap setuptools
+from ez_setup import use_setuptools
+use_setuptools()
+
 from setuptools import setup
-from setuptools.command.test import test as TestCommand
-import sys
+import os
 
-
-def find_requirements(filename):
-    with open(filename, 'r') as f:
-        return f.read().splitlines()
-
-
-class PyTest(TestCommand):
-
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = ['-x', 'tests', '-v', '--doctest-modules', '--pep8', 'mwtemplates', '--cov', 'mwtemplates']
-        self.test_suite = True
-
-    def run_tests(self):
-        #import here, cause outside the eggs aren't loaded
-        import pytest
-        errno = pytest.main(self.test_args)
-        sys.exit(errno)
-
+here = os.path.abspath(os.path.dirname(__file__))
+README = open(os.path.join(here, 'README.rst')).read()
 
 setup(name='mwtemplates',
       version='0.2dev',
       description='MediaWiki template parser and editor',
-      long_description=(
-          open('README.rst').read()
-      ),
-      author='Dan Michael Heggø',
-      author_email='danmichaelo@gmail.com',
-      url='https://github.com/danmichaelo/mwtemplates',
-      license='MIT',
-      keywords='mediawiki',
-      install_requires=find_requirements('requirements.txt'),
-      #tests_require=find_requirements('test_requirements.txt'),
-      #cmdclass={'test': PyTest},
-      packages=['mwtemplates'],
+      long_description=README,
       classifiers=[
           'Programming Language :: Python',
           'Programming Language :: Python :: 2.6',
           'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3.2',
           'Programming Language :: Python :: 3.3',
-      ]
+      ],
+      keywords='mediawiki wikipedia',
+      author='Dan Michael Heggø',
+      author_email='danmichaelo@gmail.com',
+      url='https://github.com/danmichaelo/mwtemplates',
+      license='MIT',
+      packages=['mwtemplates'],
+      install_requires=['lxml']
       )
