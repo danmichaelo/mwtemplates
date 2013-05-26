@@ -320,9 +320,9 @@ class Parameter(object):
         self.node.replace(self.node.xpath('value')[0],
                           etree.XML('<value>' + self._value + '</value>'))
 
-    @property
-    def index(self):
-        return self._index
+    #@property
+    #def index(self):
+    #    return self._index
 
     @property
     def name(self):
@@ -330,10 +330,14 @@ class Parameter(object):
 
     @property
     def key(self):
-        if self.index != -1:
-            return self.index
+        if self._index != -1:
+            return self._index
         else:
-            return self.name.strip()
+            tmp = self.name.strip()
+            if tmp.isnumeric():
+                return int(tmp)
+            else:
+                return tmp
 
     @property
     def value(self):

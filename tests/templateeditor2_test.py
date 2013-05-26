@@ -54,6 +54,18 @@ class TestTemplateEditor2(unittest.TestCase):
         params = tpl.get_anonymous_parameters()
         self.assertEqual(params[1], 'fr')
 
+    def test_find_param_4(self):
+        # Check that anonymous parameter can be found using alternative declaration method
+        text = 'Lorem ipsum {{lang|1=fr}} dolor sit amet'
+        e = TemplateEditor(text)
+        self.assertTrue(1 in e.templates['lang'][0].parameters)
+
+    def test_find_param_5(self):
+        # it should not be treated as a string
+        text = 'Lorem ipsum {{lang|1=fr}} dolor sit amet'
+        e = TemplateEditor(text)
+        self.assertFalse('1' in e.templates['lang'][0].parameters)
+
     def test_has_param_2(self):
         # has_param() should return true if non-empty
         text = 'Lorem ipsum {{lang|fr}} dolor sit amet'
@@ -184,6 +196,22 @@ class TestTemplateEditor2(unittest.TestCase):
         templ = dp.templates['infoboks A'][0]
         templ.parameters['maks'] = '3'
         tmp = text.replace('2', '3')
+        self.assertEqual(dp.wikitext(), tmp)
+
+    def test_alter_anonymous_param1(self):
+        # Check that an anomyous parameter can be edited correctly
+        text = 'Lorem ipsum {{lang|fr}} amet'
+        dp = TemplateEditor(text)
+        dp.templates['lang'][0].parameters[1] = 'no'
+        tmp = text.replace('fr', 'no')
+        self.assertEqual(dp.wikitext(), tmp)
+
+    def test_alter_anonymous_param2(self):
+        # Check that an anomyous parameter can be edited correctly, preserving declaration
+        text = 'Lorem ipsum {{lang|1=fr}} amet'
+        dp = TemplateEditor(text)
+        dp.templates['lang'][0].parameters[1] = 'no'
+        tmp = text.replace('fr', 'no')
         self.assertEqual(dp.wikitext(), tmp)
 
 if __name__ == '__main__':
