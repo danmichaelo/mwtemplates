@@ -1,4 +1,4 @@
-#encoding=utf-8
+# encoding=utf-8
 from __future__ import unicode_literals
 import mwclient
 import logging
@@ -16,16 +16,16 @@ fh.setFormatter(formatter)
 fh.setLevel(logging.DEBUG)
 logger.addHandler(fh)
 
-#fc = logging.StreamHandler()
-#fc.setFormatter(formatter)
-#fc.setLevel(logging.INFO)
-#logger.addHandler(fc)
+# fc = logging.StreamHandler()
+# fc.setFormatter(formatter)
+# fc.setLevel(logging.INFO)
+# logger.addHandler(fc)
 
 
-#@with_setup(setup)
+# @with_setup(setup)
 def test_randompages():
     n = 20
-    #logger.info('Testing %d random pages. This may take some time.', n)
+    # logger.info('Testing %d random pages. This may take some time.', n)
     pages = site.random(namespace=0, limit=n)
     for page in pages:
         logger.info('Testing page: %s', page['title'])

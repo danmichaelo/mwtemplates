@@ -1,4 +1,4 @@
-#encoding=utf-8
+# encoding=utf-8
 from __future__ import unicode_literals
 
 # /Users/danmichael/code/mediawiki/core/includes/parser/Preprocessor_DOM.php
@@ -126,7 +126,7 @@ class PPDStackElement(object):
         findPipe = self.data['open'] != '\n' and self.data['open'] != '['
         return {
             'findPipe': findPipe,
-            'findEquals': findPipe and partCount > 1 and not 'eqpos' in self.parts[-1],
+            'findEquals': findPipe and partCount > 1 and 'eqpos' not in self.parts[-1],
             'inHeading': self.data['open'] == r'\n'
         }
 
@@ -198,7 +198,7 @@ def preprocessToXml(text):
     # DM: A is not available in Python, so let's try ^
     elementsRegex = re.compile(r'^(%s)(?:\s|\/>|>)|(!--)' % xmlishRegex,
                                flags=re.I)
-    #r'~(%s)(?:\s|\/>|>)|(!--)~iA' % xmlishRegex
+    # r'~(%s)(?:\s|\/>|>)|(!--)~iA' % xmlishRegex
 
     stack = PPDStack()
     searchBase = '[{<'     # removed \n for now
@@ -207,8 +207,7 @@ def preprocessToXml(text):
     stack.accum = '<root>'        # Current accumulator
     findEquals = False            # True to find equals signs in arguments
     findPipe = False              # True to take notice of pipe characters
-    noMoreGT = False              # True if there are no more greater-than (>)
-                                  # signs right of $i
+    noMoreGT = False              # True if there are no more greater-than (>) signs right of $i
 
     cnt = 0
     i = 0       # Input pointer, points to a pseudo-newline before start
@@ -223,11 +222,11 @@ def preprocessToXml(text):
         # else:
         # Find next opening brace, closing brace or pipe
         search = searchBase
-        #found = ''
+        # found = ''
         if stack.top is False:
             currentClosing = ''
         else:
-            #print stack.top.data
+            # print stack.top.data
             currentClosing = stack.top.data['close']
             search += currentClosing
 
@@ -370,7 +369,7 @@ def preprocessToXml(text):
             elif found == 'open':
                 # count opening brace characters
                 count = strspn(text, curChar, i)
-                #print "Found %d open braces" % count
+                # print "Found %d open braces" % count
 
                 # we need to add to stack only if opening brace count
                 # is enough for one of the rules
@@ -423,7 +422,7 @@ def preprocessToXml(text):
                     # No matching element found in callback array
                     # Output a literal closing brace and continue
 
-                    #$accum .= htmlspecialchars(str_repeat($curChar,$count));
+                    # $accum .= htmlspecialchars(str_repeat($curChar,$count));
                     stack.accum += curChar * count
                     logger.debug('         ... which is not enough for'
                                  + ' current rule. Continuing...')
@@ -513,8 +512,8 @@ def preprocessToXml(text):
     stack.rootAccum += '</root>'
     xml = stack.rootAccum
 
-    #print accum
+    # print accum
     return xml
 
-#xml = preprocessToXml('LLorem ipsum {{{{{Min lille mal}}} | Kake = sake }}')
-#print xml
+# xml = preprocessToXml('LLorem ipsum {{{{{Min lille mal}}} | Kake = sake }}')
+# print xml
