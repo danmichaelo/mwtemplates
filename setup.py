@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 #encoding=utf-8
 
-
-from setuptools import setup
 import os
+
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
 here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst')).read()
