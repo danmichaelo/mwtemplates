@@ -1,4 +1,4 @@
-#encoding=utf-8
+# encoding=utf-8
 """
 mwtemplates
 Copyright (c) 2012-2013 Dan Michael O. Heggø
@@ -131,7 +131,7 @@ def get_wikitext(node):
     return tmp
 
 
-#def get_arg(node):
+# def get_arg(node):
 #    node.xpath('name')[0]
 #    node.xpath('value')[0]
 
@@ -147,7 +147,7 @@ class Templates(object):
     def __init__(self, editor, doc):
         self.editor = editor
         self.doc = doc
-        #self._entries = self._templates()
+        # self._entries = self._templates()
 
     def _templates(self):
         templates = []
@@ -168,7 +168,7 @@ class Templates(object):
     def __getitem__(self, tpl_name):
         tpl_name = tpl_name[0].upper() + tpl_name[1:]
         return [tpl for tpl in self._templates() if tpl.key == tpl_name]
-        #raise KeyError
+        # raise KeyError
 
     def __repr__(self):
         return self._templates().__repr__()
@@ -235,7 +235,7 @@ class Parameters(object):
                     return
             # new parameter:
             name_ws, value_ws = self.find_whitespace_pattern()
-            #print '"' + whitespace[0] + '", "' + whitespace[1] + '"'
+            # print '"' + whitespace[0] + '", "' + whitespace[1] + '"'
             name = name_ws[0] + name + name_ws[1]
             val = value_ws[0] + val + value_ws[1]
             parentnode = self.template.node
@@ -320,8 +320,8 @@ class Parameter(object):
         self.node.replace(self.node.xpath('value')[0],
                           etree.XML('<value>' + self._value + '</value>'))
 
-    #@property
-    #def index(self):
+    # @property
+    # def index(self):
     #    return self._index
 
     @property
