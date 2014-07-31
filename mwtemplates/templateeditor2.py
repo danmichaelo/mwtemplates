@@ -343,6 +343,10 @@ class Parameter(object):
     def value(self):
         return self._value.strip()
 
+    @value.setter
+    def value(self, val):
+        self.edit(val)
+
     def __eq__(self, param):
         if type(param).__name__ == 'unicode':
             return self.__unicode__() == param
