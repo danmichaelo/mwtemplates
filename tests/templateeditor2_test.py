@@ -223,5 +223,14 @@ class TestTemplateEditor2(unittest.TestCase):
         tmp = text.replace('fr', 'no')
         self.assertEqual(dp.wikitext(), tmp)
 
+    def test_param_delete(self):
+        # Check that a parameter can be renamed, with whitespace preserved
+        text = 'Lorem ipsum {{ Infoboks A\n| maks = 2 \n}} dolor sit amet'
+        text2 = 'Lorem ipsum {{ Infoboks A\n}} dolor sit amet'
+        dp = TemplateEditor(text)
+        templ = dp.templates['infoboks A'][0]
+        del templ.parameters['maks']
+        self.assertEqual(dp.wikitext(), text2)
+
 if __name__ == '__main__':
     unittest.main()
