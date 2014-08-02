@@ -287,5 +287,15 @@ class TestTemplateEditor2(unittest.TestCase):
         templ.parameters['b'] = '3'
         self.assertEqual(dp.wikitext(), text2)
 
+    def test_delete_parameter(self):
+        # Check that a parameter can be deleted
+        text = 'Lorem ipsum {{ Infoboks A | a = 2 | b = 3 | c = 4 }} dolor sit amet'
+        text2 = 'Lorem ipsum {{ Infoboks A | a = 2 | c = 4 }} dolor sit amet'
+        dp = TemplateEditor(text)
+        templ = dp.templates['infoboks A'][0]
+        del templ.parameters['b']
+        self.assertEqual(dp.wikitext(), text2)
+
+
 if __name__ == '__main__':
     unittest.main()
