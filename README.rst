@@ -1,10 +1,25 @@
 mwtemplates
 ==================
 
-.. image:: https://travis-ci.org/danmichaelo/mwtemplates.png?branch=master
+.. image:: http://img.shields.io/travis/danmichaelo/mwtemplates.svg?style=flat
    :target: https://travis-ci.org/danmichaelo/mwtemplates
-.. image:: https://coveralls.io/repos/danmichaelo/mwtemplates/badge.png
+   :alt: Build status
+
+.. image:: http://img.shields.io/coveralls/danmichaelo/mwtemplates.svg
    :target: https://coveralls.io/r/danmichaelo/mwtemplates
+   :alt: Test coverage
+
+.. image:: https://pypip.in/version/mwtemplates/badge.svg?style=flat
+   :target: https://pypi.python.org/pypi/mwtemplates/
+   :alt: Latest Version
+
+.. image:: https://pypip.in/py_versions/mwtemplates/badge.svg?style=flat
+   :target: https://pypi.python.org/pypi/mwtemplates/
+   :alt: Supported Python versions
+
+.. image:: https://pypip.in/download/mwtemplates/badge.svg?period=month&style=flat
+   :target: https://pypi.python.org/pypi/mwtemplates/
+   :alt: Downloads
 
 mwtemplates is a simple wikitext template parser and editor, based on a python rewrite of the mediawiki preprocessorDOM.php. Tested with python 2.6, 2.7, 3.2 and 3.3.
 
