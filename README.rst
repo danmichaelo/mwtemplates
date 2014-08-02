@@ -83,8 +83,9 @@ Updating a page on Wikipedia using [//github.com/mwclient/mwclient mwclient]
    page = site.pages['SOME_PAGE']
    te = TemplateEditor(page.edit())
    if 'SOME_TEMPLATE' in page.templates:
-      te.templates['SOME_TEMPLATE'].parameters['test'] = 'Hello'
-   page.save(te, summary='...')
+      tpl = te.templates['SOME_TEMPLATE'][0]
+      tpl.parameters['test'] = 'Hello'
+   page.save(te.wikitext(), summary='...')
 
 Removing a template argument:
 
