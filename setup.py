@@ -12,7 +12,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst')).read()
 
 setup(name='mwtemplates',
-      version='0.3dev',
+      version='0.4',
       description='MediaWiki template parser and editor',
       long_description=README,
       classifiers=[
@@ -21,6 +21,7 @@ setup(name='mwtemplates',
           'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3.2',
           'Programming Language :: Python :: 3.3',
+          'Programming Language :: Python :: 3.4',
       ],
       keywords='mediawiki wikipedia',
       author='Dan Michael Heggø',
