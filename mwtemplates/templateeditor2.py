@@ -221,7 +221,7 @@ class Parameters(object):
         for param in self._entries:
             if param.key == param_name:
                 return param
-        raise KeyError
+        raise KeyError('No such parameter')
 
     def __setitem__(self, name, val):
         # python2   <->  python3
@@ -257,7 +257,7 @@ class Parameters(object):
         raise KeyError
 
     def __repr__(self):
-        return self._entries.__repr__()
+        return '<Parameters: %s>' % (', '.join(['%s="%s"' % (x.key, x.value) for x in self._entries]))
 
     # def items(self):
     #     return self._entries.items()
@@ -289,7 +289,7 @@ class Parameters(object):
         if len(value_ws) >= 1:
             value_ws = most_common(value_ws)
         else:
-            value_ws = (' ', '')
+            value_ws = ('', ' ')
         if len(name_ws) >= 1:
             name_ws = most_common(name_ws)
         else:
@@ -380,7 +380,7 @@ class Parameter(object):
         return int(self.__unicode__())
 
     def __repr__(self):
-        return self._value.strip()
+        return self.value
 
 
 class Template(object):
@@ -404,7 +404,7 @@ class Template(object):
                 self.parameters.add(elem)
 
     def __repr__(self):
-        return self.key
+        return '<Template:"%s" at line %d>' % (self.key, self.node.sourceline)
 
     @property
     def key(self):
