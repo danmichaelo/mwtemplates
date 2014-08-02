@@ -30,7 +30,7 @@ To run tests, clone the repo and do:
 Usage examples
 -------------------
 
-Usage example:
+Edit a template:
 
 .. code-block:: python
 
@@ -52,3 +52,18 @@ Usage example:
     te.templates['infoboks geografi'][0].parameters['land'] = 'Russland'
     print te.wikitext()
 
+Remove a template argument:
+
+.. code-block:: python
+
+    from mwtemplates import TemplateEditor
+    te = TemplateEditor(u"Hello {{mytpl | a=2 | b=3 | c=4 }} world")
+    te.templates['mytpl'].parameters.remove('b')
+
+Remove the first instance of a template:
+
+.. code-block:: python
+
+    from mwtemplates import TemplateEditor
+    te = TemplateEditor(u"Hello {{mytpl}} world {{mytpl}}")
+    te.templates['mytpl'][0].remove()

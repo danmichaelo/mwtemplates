@@ -186,12 +186,13 @@ class TestTemplateEditor2(unittest.TestCase):
 
     def test_repr(self):
         # Check that a parameter can be added, when there's no existing parameters
-        text = 'Lorem ipsum {{Infoboks A| a=2 | b=3 }} dolor sit amet'
+        text = 'Lorem ipsum {{Infoboks A| a=2 | b=3 }} dolor sit amet {{lang|fr}}'
         dp = TemplateEditor(text)
         templ = dp.templates['infoboks A'][0]
         self.assertEqual('2', repr(templ.parameters['a']))
         self.assertEqual('<Parameters: a="2", b="3">', repr(templ.parameters))
         self.assertEqual('<Template:"Infoboks A" at line 1>', repr(templ))
+        self.assertEqual('[<Template:"Infoboks A" at line 1>, <Template:"Lang" at line 1>]', repr(dp.templates))
 
     # MODIFICATION TESTS
 
@@ -329,6 +330,15 @@ class TestTemplateEditor2(unittest.TestCase):
         del templ.parameters['b']
         self.assertEqual(dp.wikitext(), text2)
 
+    def test_delete_parameter_alternative(self):
+        # Check that a parameter can be deleted
+        text = 'Lorem ipsum {{ Infoboks A | a = 2 | b = 3 | c = 4 }} dolor sit amet'
+        text2 = 'Lorem ipsum {{ Infoboks A | a = 2 | c = 4 }} dolor sit amet'
+        dp = TemplateEditor(text)
+        templ = dp.templates['infoboks A'][0]
+        templ.parameters.remove('b')
+        self.assertEqual(dp.wikitext(), text2)
+
     def test_delete_invalid_parameter(self):
         # Check that a parameter can be deleted
         def x():
@@ -337,6 +347,14 @@ class TestTemplateEditor2(unittest.TestCase):
             templ = dp.templates['infoboks A'][0]
             del templ.parameters['e']
         self.assertRaises(KeyError, x)
+
+    def test_delete_template(self):
+        # Check that a parameter can be deleted
+        text = 'Lorem ipsum {{ Infoboks A | a = 2 | b = 3 | c = 4 }} dolor sit{{lang|fr}} amet'
+        text2 = 'Lorem ipsum dolor sit{{lang|fr}} amet'
+        dp = TemplateEditor(text)
+        dp.templates['Infoboks A'][0].remove()  # Note that 'del dp.templates['Infoboks A'][0]' currently does not work
+        self.assertEqual(dp.wikitext(), text2)
 
 if __name__ == '__main__':
     unittest.main()

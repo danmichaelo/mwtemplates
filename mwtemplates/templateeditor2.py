@@ -256,6 +256,9 @@ class Parameters(object):
                 return
         raise KeyError
 
+    def remove(self, param_name):
+        return self.__delitem__(param_name)
+
     def __repr__(self):
         return '<Parameters: %s>' % (', '.join(['%s="%s"' % (x.key, x.value) for x in self._entries]))
 
@@ -390,7 +393,7 @@ class Template(object):
 
     def __init__(self, node, editor):
 
-        logger.debug('TemplateEditor got new template')
+        logger.debug('Initiating Template object')
 
         self.node = node
         self.editor = editor
