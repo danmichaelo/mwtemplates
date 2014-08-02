@@ -21,15 +21,19 @@ mwtemplates
    :target: https://pypi.python.org/pypi/mwtemplates/
    :alt: Downloads
 
-mwtemplates is a simple wikitext template parser and editor, based on a python rewrite of the mediawiki preprocessorDOM.php. Tested with python 2.6, 2.7, 3.2 and 3.3.
+mwtemplates is a simple MediaWiki wikitext template parser and editor, based on a Python rewrite of the MediaWiki preprocessorDOM.php.
+Tested with python 2.6, 2.7, 3.2, 3.3 and 3.4.
 
-It can be installed directly off github:
+
+Installation
+-------------------
+
+The package is on PyPI, so you can install it using `pip`, `easy_install` or similar:
 
 .. code-block:: console
 
-    $ pip install git+git://github.com/danmichaelo/mwtemplates.git
+   $ pip install mwtemplates
 
-(There is also a version on PyPi that can be installed using ``pip install mwtemplates`` or ``easy_install mwtemplates``)
 
 Running tests
 -------------------
@@ -45,7 +49,7 @@ To run tests, clone the repo and do:
 Usage examples
 -------------------
 
-Edit a template:
+Editing a template:
 
 .. code-block:: python
 
@@ -67,7 +71,22 @@ Edit a template:
     te.templates['infoboks geografi'][0].parameters['land'] = 'Russland'
     print te.wikitext()
 
-Remove a template argument:
+Updating a page on Wikipedia using [//github.com/mwclient/mwclient mwclient]
+
+.. code-block:: python
+
+   from mwclient import Site
+   from mwtemplates import TemplateEditor
+
+   site = Site('en.wikipedia.org')
+   site.login('USERNAME', 'PASSWORD')
+   page = site.pages['SOME_PAGE']
+   te = TemplateEditor(page.edit())
+   if 'SOME_TEMPLATE' in page.templates:
+      te.templates['SOME_TEMPLATE'].parameters['test'] = 'Hello'
+   page.save(te, summary='...')
+
+Removing a template argument:
 
 .. code-block:: python
 
@@ -75,10 +94,11 @@ Remove a template argument:
     te = TemplateEditor(u"Hello {{mytpl | a=2 | b=3 | c=4 }} world")
     te.templates['mytpl'].parameters.remove('b')
 
-Remove the first instance of a template:
+Removing the first instance of a template:
 
 .. code-block:: python
 
     from mwtemplates import TemplateEditor
     te = TemplateEditor(u"Hello {{mytpl}} world {{mytpl}}")
     te.templates['mytpl'][0].remove()
+
