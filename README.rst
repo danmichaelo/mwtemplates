@@ -71,7 +71,7 @@ Editing a template:
     te.templates['infoboks geografi'][0].parameters['land'] = 'Russland'
     print te.wikitext()
 
-Updating a page on Wikipedia using [//github.com/mwclient/mwclient mwclient]
+Updating a page on Wikipedia using _mwclient: https://github.com/mwclient/mwclient
 
 .. code-block:: python
 
