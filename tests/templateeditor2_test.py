@@ -180,7 +180,7 @@ class TestTemplateEditor2(unittest.TestCase):
 
     # MODIFICATION TESTS
 
-    def test_namechange(self):
+    def test_change_template_name(self):
         # Check that a template can be renamed, with whitespace preserved
         text = 'Lorem ipsum {{ Infoboks A\n| maks=2\n}} dolor sit amet'
         dp = TemplateEditor(text)
@@ -189,7 +189,25 @@ class TestTemplateEditor2(unittest.TestCase):
         tmp = text.replace('Infoboks A', 'Mal B')
         self.assertEqual(dp.wikitext(), tmp)
 
-    def test_paramchange(self):
+    def test_edit_empty_parameter(self):
+        # Check that a parameter can be renamed, with whitespace preserved
+        text = 'Lorem ipsum {{ Infoboks A | date= | title= }} dolor sit amet'
+        dp = TemplateEditor(text)
+        templ = dp.templates['infoboks A'][0]
+        templ.parameters['date'] = 'test'
+        tmp = text.replace('date=', 'date=test')
+        self.assertEqual(dp.wikitext(), tmp)
+
+    def test_edit_empty_parameter_with_linebreak(self):
+        # Check that a parameter can be renamed, with whitespace preserved
+        text = 'Lorem ipsum {{ Infoboks A \n| date= \n| title= \n}} dolor sit amet'
+        dp = TemplateEditor(text)
+        templ = dp.templates['infoboks A'][0]
+        templ.parameters['date'] = 'test'
+        tmp = text.replace('date= ', 'date= test')
+        self.assertEqual(dp.wikitext(), tmp)
+
+    def test_edit_nonempty_parameter(self):
         # Check that a parameter can be renamed, with whitespace preserved
         text = 'Lorem ipsum {{ Infoboks A\n| maks = 2 \n}} dolor sit amet'
         dp = TemplateEditor(text)
@@ -198,7 +216,7 @@ class TestTemplateEditor2(unittest.TestCase):
         tmp = text.replace('2', '3')
         self.assertEqual(dp.wikitext(), tmp)
 
-    def test_paramchange_alternative(self):
+    def test_edit_nonempty_parameter_alternative(self):
         # Check that a parameter can be renamed, with whitespace preserved
         text = 'Lorem ipsum {{ Infoboks A\n| maks = 2 \n}} dolor sit amet'
         dp = TemplateEditor(text)
@@ -207,7 +225,7 @@ class TestTemplateEditor2(unittest.TestCase):
         tmp = text.replace('2', '3')
         self.assertEqual(dp.wikitext(), tmp)
 
-    def test_alter_anonymous_param1(self):
+    def test_edit_anonymous_parameter1(self):
         # Check that an anomyous parameter can be edited correctly
         text = 'Lorem ipsum {{lang|fr}} amet'
         dp = TemplateEditor(text)
@@ -215,7 +233,7 @@ class TestTemplateEditor2(unittest.TestCase):
         tmp = text.replace('fr', 'no')
         self.assertEqual(dp.wikitext(), tmp)
 
-    def test_alter_anonymous_param2(self):
+    def test_edit_anonymous_parameter2(self):
         # Check that an anomyous parameter can be edited correctly, preserving declaration
         text = 'Lorem ipsum {{lang|1=fr}} amet'
         dp = TemplateEditor(text)
@@ -223,7 +241,7 @@ class TestTemplateEditor2(unittest.TestCase):
         tmp = text.replace('fr', 'no')
         self.assertEqual(dp.wikitext(), tmp)
 
-    def test_param_delete(self):
+    def test_delete_parameter(self):
         # Check that a parameter can be renamed, with whitespace preserved
         text = 'Lorem ipsum {{ Infoboks A\n| maks = 2 \n}} dolor sit amet'
         text2 = 'Lorem ipsum {{ Infoboks A\n}} dolor sit amet'

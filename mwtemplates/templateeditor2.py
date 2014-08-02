@@ -83,9 +83,9 @@ def get_whitespace(txt):
     if rall:
         tmp = txt.split('\n', 1)
         if len(tmp) == 2:
-            return (tmp[0], '\n' + tmp[1])
+            return (tmp[0], '\n' + tmp[1])  # left, right
         else:
-            return (tmp, '')
+            return ('', tmp[0])  # left, right
     left = ''
     # find whitespace to the left of the parameter
     rlm = re.search(r'^([\s])+', txt)
