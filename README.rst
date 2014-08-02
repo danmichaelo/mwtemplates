@@ -5,7 +5,7 @@ mwtemplates
    :target: https://travis-ci.org/danmichaelo/mwtemplates
    :alt: Build status
 
-.. image:: http://img.shields.io/coveralls/danmichaelo/mwtemplates.svg
+.. image:: http://img.shields.io/coveralls/danmichaelo/mwtemplates.svg?style=flat
    :target: https://coveralls.io/r/danmichaelo/mwtemplates
    :alt: Test coverage
 
