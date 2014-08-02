@@ -190,7 +190,7 @@ class TestTemplateEditor2(unittest.TestCase):
         self.assertEqual(dp.wikitext(), tmp)
 
     def test_edit_empty_parameter(self):
-        # Check that a parameter can be renamed, with whitespace preserved
+        # Check that an empty parameter can be edited
         text = 'Lorem ipsum {{ Infoboks A | date= | title= }} dolor sit amet'
         dp = TemplateEditor(text)
         templ = dp.templates['infoboks A'][0]
@@ -199,7 +199,7 @@ class TestTemplateEditor2(unittest.TestCase):
         self.assertEqual(dp.wikitext(), tmp)
 
     def test_edit_empty_parameter_with_linebreak(self):
-        # Check that a parameter can be renamed, with whitespace preserved
+        # Check that an empty parameter can be edited, with linebreak preserved
         text = 'Lorem ipsum {{ Infoboks A \n| date= \n| title= \n}} dolor sit amet'
         dp = TemplateEditor(text)
         templ = dp.templates['infoboks A'][0]
@@ -217,7 +217,7 @@ class TestTemplateEditor2(unittest.TestCase):
         self.assertEqual(dp.wikitext(), tmp)
 
     def test_edit_nonempty_parameter_alternative(self):
-        # Check that a parameter can be renamed, with whitespace preserved
+        # Check that a parameter can be renamed using 'parameter.value='
         text = 'Lorem ipsum {{ Infoboks A\n| maks = 2 \n}} dolor sit amet'
         dp = TemplateEditor(text)
         templ = dp.templates['infoboks A'][0]
@@ -226,7 +226,7 @@ class TestTemplateEditor2(unittest.TestCase):
         self.assertEqual(dp.wikitext(), tmp)
 
     def test_edit_anonymous_parameter1(self):
-        # Check that an anomyous parameter can be edited correctly
+        # Check that an anomyous parameter can be edited
         text = 'Lorem ipsum {{lang|fr}} amet'
         dp = TemplateEditor(text)
         dp.templates['lang'][0].parameters[1] = 'no'
@@ -234,7 +234,7 @@ class TestTemplateEditor2(unittest.TestCase):
         self.assertEqual(dp.wikitext(), tmp)
 
     def test_edit_anonymous_parameter2(self):
-        # Check that an anomyous parameter can be edited correctly, preserving declaration
+        # Check that an anomyous parameter can be edited, preserving declaration
         text = 'Lorem ipsum {{lang|1=fr}} amet'
         dp = TemplateEditor(text)
         dp.templates['lang'][0].parameters[1] = 'no'
@@ -248,6 +248,43 @@ class TestTemplateEditor2(unittest.TestCase):
         dp = TemplateEditor(text)
         templ = dp.templates['infoboks A'][0]
         del templ.parameters['maks']
+        self.assertEqual(dp.wikitext(), text2)
+
+    def test_find_whitespace1(self):
+        # Check that a whitespace pattern can be found
+        text = 'Lorem ipsum {{ Infoboks A\n| a = 2 \n| b = 3 \n}} dolor sit amet'
+        dp = TemplateEditor(text)
+        name_ws, value_ws = dp.templates['infoboks A'][0].parameters.find_whitespace_pattern()
+        self.assertEqual(' ', name_ws[0])
+        self.assertEqual(' ', name_ws[1])
+        self.assertEqual(' ', value_ws[0])
+        self.assertEqual(' \n', value_ws[1])
+
+    def test_add_parameter1(self):
+        # Check that a parameter can be added, and that an existing whitespace pattern is followed
+        text = 'Lorem ipsum {{ Infoboks A\n| a = 2 \n| b = 3 \n}} dolor sit amet'
+        text2 = 'Lorem ipsum {{ Infoboks A\n| a = 2 \n| b = 3 \n| c = 4 \n}} dolor sit amet'
+        dp = TemplateEditor(text)
+        templ = dp.templates['infoboks A'][0]
+        templ.parameters['c'] = '4'
+        self.assertEqual(dp.wikitext(), text2)
+
+    def test_add_parameter2(self):
+        # Check that a parameter can be added, and that an existing whitespace pattern is followed
+        text = 'Lorem ipsum {{ Infoboks A\n| maks = 2 \n}} dolor sit amet'
+        text2 = 'Lorem ipsum {{ Infoboks A\n| maks = 2 \n| dato = TEST \n}} dolor sit amet'
+        dp = TemplateEditor(text)
+        templ = dp.templates['infoboks A'][0]
+        templ.parameters['dato'] = 'TEST'
+        self.assertEqual(dp.wikitext(), text2)
+
+    def test_add_parameter3(self):
+        # Check that a parameter can be added, and that an existing whitespace pattern is followed
+        text = 'Lorem ipsum {{ Infoboks A | a = 2 }} dolor sit amet'
+        text2 = 'Lorem ipsum {{ Infoboks A | a = 2 | b = 3 }} dolor sit amet'
+        dp = TemplateEditor(text)
+        templ = dp.templates['infoboks A'][0]
+        templ.parameters['b'] = '3'
         self.assertEqual(dp.wikitext(), text2)
 
 if __name__ == '__main__':
