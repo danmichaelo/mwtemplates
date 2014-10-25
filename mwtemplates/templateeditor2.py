@@ -379,7 +379,10 @@ class Parameter(object):
         elif type(param).__name__ == 'str':
             return self.__str__() == param
         elif type(param).__name__ == 'int':
-            return int(self.__unicode__()) == param
+            try:
+                return int(self.__unicode__()) == param
+            except ValueError:
+                return False
         else:
             return False
 

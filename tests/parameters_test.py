@@ -34,6 +34,13 @@ class TestParameters(unittest.TestCase):
         assert params.get('some existing param') == param1
         assert params['some existing param'] == param1
 
+    def test_numeric_key(self):
+        param1 = self.addParam(1)
+        params = self.params
+
+        assert params.get(1) == param1
+        assert params[1] == param1
+
     def test_contains(self):
         param1 = self.addParam('some param')
         params = self.params
