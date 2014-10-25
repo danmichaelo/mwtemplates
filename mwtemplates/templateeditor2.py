@@ -211,8 +211,11 @@ class Parameters(object):
         self._entries = []
         self.template = template
 
-    def __contains__(self, param_name):
-        return param_name in self.keys()
+    def __contains__(self, param):
+        # param is a Parameter object or a string
+        if param in self._entries:
+            return True
+        return param in self.keys()
 
     def __getitem__(self, param_name):
         for param in self._entries:
@@ -250,17 +253,19 @@ class Parameters(object):
             raise TypeError
 
     def __delitem__(self, param_name):
-        for i, entry in enumerate(self._entries):
-            if entry.key == param_name:
-                # parameter changed:
-                logger.debug('Removing parameter "%s"', entry.key)
-                self.template.node.remove(entry.node)
-                del self._entries[i]
-                return
-        raise KeyError
+        param = self.__getitem__(param_name)
+        return self.remove(param)
 
-    def remove(self, param_name):
-        return self.__delitem__(param_name)
+    def remove(self, param):
+        # param can be a Parameter object or a string
+
+        if param in self.keys():
+            param = self.__getitem__(param)
+
+        i = self.index(param)
+        logger.debug('Removing parameter "%s"', param.key)
+        self.template.node.remove(param.node)
+        del self._entries[i]
 
     def __repr__(self):
         return '<Parameters: %s>' % (', '.join(['%s="%s"' % (x.key, x.value) for x in self._entries]))
