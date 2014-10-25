@@ -354,5 +354,17 @@ class TestTemplateEditor2(unittest.TestCase):
         dp.templates['Infoboks A'][0].remove()  # Note that 'del dp.templates['Infoboks A'][0]' currently does not work
         self.assertEqual(dp.wikitext(), text2)
 
+    def test_blank_template(self):
+        # Should not crash...
+        text = 'Lorem ipsum {{}} dolor sit amet'
+        te = TemplateEditor(text)
+        self.assertEqual(len(te.templates), 0)
+
+    def test_blank_template_roundtrip(self):
+        # Check that a parameter can be deleted
+        text = 'Lorem ipsum {{ }} dolor sit amet'
+        dp = TemplateEditor(text)
+        self.assertEqual(dp.wikitext(), text)
+
 if __name__ == '__main__':
     unittest.main()

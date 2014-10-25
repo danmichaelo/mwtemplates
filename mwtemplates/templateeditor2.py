@@ -152,7 +152,9 @@ class Templates(object):
     def _templates(self):
         templates = []
         for node in self.doc.findall('.//template'):
-            templates.append(Template(node, self.editor))
+            q = Template(node, self.editor)
+            if q.key != '':
+                templates.append(q)
         return templates
 
     # def add(self, node):
@@ -435,6 +437,8 @@ class Template(object):
     def key(self):
         tmp = self._name.strip()
         tmp = re.sub(r'^(?:[Mm]al|[Tt]emplate):', '', tmp)
+        if len(tmp) == 0:
+            return ''
         return tmp[0].upper() + tmp[1:]
 
     @property
