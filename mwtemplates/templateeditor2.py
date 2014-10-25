@@ -212,16 +212,19 @@ class Parameters(object):
         self.template = template
 
     def __contains__(self, param_name):
-        for param in self._entries:
-            if param.key == param_name:
-                return True
-        return False
+        return param_name in self.keys()
 
     def __getitem__(self, param_name):
         for param in self._entries:
             if param.key == param_name:
                 return param
         raise KeyError('No such parameter')
+
+    def get(self, param_name, default=None):
+        try:
+            return self.__getitem__(param_name)
+        except KeyError:
+            return default
 
     def __setitem__(self, name, val):
         # python2   <->  python3
@@ -262,18 +265,26 @@ class Parameters(object):
     def __repr__(self):
         return '<Parameters: %s>' % (', '.join(['%s="%s"' % (x.key, x.value) for x in self._entries]))
 
-    # def items(self):
-    #     return self._entries.items()
-
-    # def keys(self):
-    #     return self._entries.keys()
+    def keys(self):
+        # Return all parameter keys, including duplicates
+        return [param.key for param in self._entries]
 
     def __len__(self):
         return len(self._entries)
 
     def __iter__(self):
+        # Iterate over all parameters, including duplicates
         for param in self._entries:
             yield param
+
+    def items(self):
+        # All parameters, including duplicates
+        return [(param.key, param) for param in self._entries]
+
+    def iteritems(self):
+        # Iterate over all parameters, including duplicates
+        for param in self._entries:
+            yield (param.key, param)
 
     def add(self, node):
         self._entries.append(Parameter(node))
