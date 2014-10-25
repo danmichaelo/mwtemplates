@@ -1,7 +1,7 @@
 # encoding=utf-8
 """
 mwtemplates
-Copyright (c) 2012-2013 Dan Michael O. Heggø
+Copyright (c) 2012-2014 Dan Michael O. Heggø
 
 Simple wikitext template parser and editor
 """
