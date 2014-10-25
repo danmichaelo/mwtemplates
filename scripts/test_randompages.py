@@ -35,7 +35,7 @@ def test_randompages():
 def check_randompage(pagename):
     logger.debug('Page: %s', pagename)
     page = site.pages[pagename]
-    inputtxt = page.edit(readonly=True)
+    inputtxt = page.edit()
     dp = TemplateEditor(inputtxt)
     outputtxt = dp.wikitext()
 
