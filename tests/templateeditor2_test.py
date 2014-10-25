@@ -17,6 +17,7 @@ class TestTemplateEditor2(unittest.TestCase):
         text = 'Lorem ipsum {{lang}} dolor sit amet'
         te = TemplateEditor(text)
         self.assertTrue('lang' in te.templates)
+        self.assertFalse('slang' in te.templates)
 
     def test_name_is_unicode(self):
         # Check that templates can be found
@@ -182,6 +183,12 @@ class TestTemplateEditor2(unittest.TestCase):
         x = te.templates.items()
         self.assertEqual(x[0][0], 'Ipsum')
 
+    def test_iteritems(self):
+        text = 'Lorem {{Ipsum|dolor|sit|amet}}'
+        te = TemplateEditor(text)
+        x = te.templates.iteritems().next()
+        self.assertEqual(x[0], 'Ipsum')
+
     def test_repr(self):
         # Check that a parameter can be added, when there's no existing parameters
         text = 'Lorem ipsum {{Infoboks A| a=2 | b=3 }} dolor sit amet {{lang|fr}}'
@@ -191,6 +198,12 @@ class TestTemplateEditor2(unittest.TestCase):
         self.assertEqual('<Parameters: a="2", b="3">', repr(templ.parameters))
         self.assertEqual('<Template:"Infoboks A" at line 1>', repr(templ))
         self.assertEqual('[<Template:"Infoboks A" at line 1>, <Template:"Lang" at line 1>]', repr(dp.templates))
+
+    def test_xml(self):
+        text = 'Lorem {{Ipsum|dolor|sit=amet}}'
+        te = TemplateEditor(text)
+        xml = te.xml()
+        self.assertEqual(xml, '<root>Lorem <template><title>Ipsum</title><part><name index="1"/><value>dolor</value></part><part><name>sit</name>=<value>amet</value></part></template></root>')
 
     # MODIFICATION TESTS
 

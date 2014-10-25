@@ -99,9 +99,9 @@ class TestParameters(unittest.TestCase):
         param1 = self.addParam('key1')
         params = self.params
 
-        assert len(params.keys()) == 1
+        assert len(params) == 1
         del params['key1']
-        assert len(params.keys()) == 0
+        assert len(params) == 0
 
         self.template.node.remove.assert_called_once_with(mock.ANY)
 
@@ -110,9 +110,9 @@ class TestParameters(unittest.TestCase):
         param2 = mock.MagicMock()  # not added
         params = self.params
 
-        assert len(params.keys()) == 1
+        assert len(params) == 1
         params.remove(param1)
-        assert len(params.keys()) == 0
+        assert len(params) == 0
 
         with pytest.raises(ValueError):
             params.remove(param2)
