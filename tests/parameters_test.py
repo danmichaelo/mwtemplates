@@ -96,3 +96,13 @@ class TestParameters(unittest.TestCase):
         assert len(params.keys()) == 0
 
         self.template.node.remove.assert_called_once_with(mock.ANY)
+
+    def test_index(self):
+        param1 = self.addParam('key1')
+        param2 = self.addParam('key2')
+        param3 = self.addParam('key2')
+        params = self.params
+
+        assert params.index(param1) == 0
+        assert params.index(param2) == 1
+        assert params.index(param3) == 2

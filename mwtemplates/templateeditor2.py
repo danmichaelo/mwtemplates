@@ -269,6 +269,9 @@ class Parameters(object):
         # Return all parameter keys, including duplicates
         return [param.key for param in self._entries]
 
+    def index(self, param):
+        return self._entries.index(param)
+
     def __len__(self):
         return len(self._entries)
 
