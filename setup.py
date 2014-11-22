@@ -16,6 +16,9 @@ setup(name='mwtemplates',
       description='MediaWiki template parser and editor',
       long_description=README,
       classifiers=[
+          'Topic :: Text Processing :: Markup',
+          'License :: OSI Approved :: MIT License',
+          'Intended Audience :: Developers',
           'Programming Language :: Python',
           'Programming Language :: Python :: 2.6',
           'Programming Language :: Python :: 2.7',
@@ -29,5 +32,5 @@ setup(name='mwtemplates',
       url='https://github.com/danmichaelo/mwtemplates',
       license='MIT',
       packages=['mwtemplates'],
-      install_requires=['lxml']
+      install_requires=['lxml', 'six']
       )

@@ -8,7 +8,6 @@ Simple wikitext template parser and editor
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import sys
 import weakref
 import six
 # <root>LLorem ipsum <template>
@@ -406,7 +405,7 @@ class Parameter(object):
         return self._value.strip()
 
     def __str__(self):
-        if sys.version_info > (3, 0):
+        if six.PY3:
             return self.__unicode__()
         else:
             return self.__unicode__().encode('utf-8')
@@ -491,7 +490,7 @@ class Template(object):
         return tmp
 
     def __str__(self):
-        if sys.version_info > (3, 0):
+        if six.PY3:
             return self.__unicode__()
         else:
             return self.__unicode__().encode('utf-8')
