@@ -214,9 +214,7 @@ class Parameters(object):
 
     def __init__(self, template):
         self._entries = []
-
-        # Make child-parent reference weak to avoid memory leak
-        self.template = weakref.ref(template)
+        self.template = template
 
     def __contains__(self, param):
         # param is a Parameter object or a string

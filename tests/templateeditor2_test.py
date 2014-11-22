@@ -292,8 +292,7 @@ class TestTemplateEditor2(unittest.TestCase):
         text = 'Lorem ipsum {{ Infoboks A\n| a = 2 \n| b = 3 \n}} dolor sit amet'
         text2 = 'Lorem ipsum {{ Infoboks A\n| a = 2 \n| b = 3 \n| c = 4 \n}} dolor sit amet'
         dp = TemplateEditor(text)
-        templ = dp.templates['infoboks A'][0]
-        templ.parameters['c'] = '4'
+        dp.templates['infoboks A'][0].parameters['c'] = '4'
         self.assertEqual(dp.wikitext(), text2)
 
     def test_add_parameter2(self):
@@ -301,8 +300,7 @@ class TestTemplateEditor2(unittest.TestCase):
         text = 'Lorem ipsum {{ Infoboks A\n| maks = 2 \n}} dolor sit amet'
         text2 = 'Lorem ipsum {{ Infoboks A\n| maks = 2 \n| dato = TEST \n}} dolor sit amet'
         dp = TemplateEditor(text)
-        templ = dp.templates['infoboks A'][0]
-        templ.parameters['dato'] = 'TEST'
+        dp.templates['infoboks A'][0].parameters['dato'] = 'TEST'
         self.assertEqual(dp.wikitext(), text2)
 
     def test_add_parameter3(self):
@@ -310,8 +308,7 @@ class TestTemplateEditor2(unittest.TestCase):
         text = 'Lorem ipsum {{ Infoboks A | a = 2 }} dolor sit amet'
         text2 = 'Lorem ipsum {{ Infoboks A | a = 2 | b = 3 }} dolor sit amet'
         dp = TemplateEditor(text)
-        templ = dp.templates['infoboks A'][0]
-        templ.parameters['b'] = '3'
+        dp.templates['infoboks A'][0].parameters['b'] = '3'
         self.assertEqual(dp.wikitext(), text2)
 
     def test_add_parameter3(self):
