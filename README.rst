@@ -21,7 +21,7 @@ mwtemplates
    :target: https://pypi.python.org/pypi/mwtemplates/
    :alt: Downloads
 
-mwtemplates is a simple MediaWiki wikitext template parser and editor, based on a Python rewrite of the MediaWiki preprocessorDOM.php.
+mwtemplates is a MediaWiki wikitext template parser and editor, based on a Python rewrite of the MediaWiki preprocessorDOM.php.
 Tested with python 2.6, 2.7, 3.2, 3.3 and 3.4.
 
 
@@ -34,42 +34,60 @@ The package is on PyPI, so you can install it using `pip`, `easy_install` or sim
 
    $ pip install mwtemplates
 
+Introduction
+------------
 
-Running tests
--------------------
-
-To run tests, clone the repo and do:
-
-.. code-block:: console
-    
-    $ pip install -r requirements.txt
-    $ pip install -r test_requirements.txt
-    $ py.test -x tests --pep8 mwtemplates -v --cov mwtemplates --doctest-modules
-
-Usage examples
--------------------
-
-Editing a template:
+Let's start by importing `TemplateEditor` and giving it some wikitext to eat:
 
 .. code-block:: python
 
-    from mwtemplates import TemplateEditor
-    txt = u"""
-    {{Infoboks geografi
-    | kart = Svalbard_kart1.png
-    | land = Norge
-    | status = Øygruppe
-    | administrasjon = [[Odd Olsen Ingerø]] ''<small>(2009)</small>''
-    | administrasjonsnavn = [[Sysselmannen på Svalbard|Sysselmann]]
-    | areal = 61022
-    | befolkning = 2527
-    | befolkningsår = [[2011]]
-    | url = www.sysselmannen.svalbard.no
+    >>> from mwtemplates import TemplateEditor
+    >>> txt = u"""
+    ... {{Infobox cheese
+    ... | name = Mozzarella
+    ... | protein = 7
+    ... }}
+    ... Mozzarella is a cheese…{{tr}}
+    ... """
+    >>> te = TemplateEditor(txt)
+
+First, we can see what templates the editor found in the text:
+
+.. code-block:: python
+
+    >>> te.templates
+    [<Template:"Infobox cheese" at line 2>, <Template:"Tr" at line 6>]
+
+Each template is an instance of a `Template` class. Also notice that template names are normalized by upper-casing the first character. Now, we can try investigating the `Infobox cheese` template:
+
+.. code-block:: python
+
+    >>> te.templates['Infobox cheese']
+    [<Template:"Infobox cheese" at line 2>]
+
+Since there can be several instances of the same template, an array is always returned, and so we need to ask for `te.templates['Infobox cheese'][0]` to get the actual `Template`. To get the parameters:
+
+.. code-block:: python
+
+    >>> te.templates['Infobox cheese'][0].parameters
+    <Parameters: name="Mozzarella", protein="10">
+
+Let's say we want to change the value of the `protein` parameter from 10 to 7. We then use
+the `wikitext()` method to return our new wikitext:
+
+    >>> te.templates['Infobox cheese'][0].parameters['protein'] = 7
+    >>> print te.wikitext()
+    {{Infobox cheese
+    | name = Mozzarella
+    | protein = 10
     }}
-    """
-    te = TemplateEditor(txt)
-    te.templates['infoboks geografi'][0].parameters['land'] = 'Russland'
-    print te.wikitext()
+    Mozzarella is a cheese…{{tr}}
+
+Notice that formatting is preserved.
+
+
+Usage with mwclient to edit pages on Wikipedia
+----------------------------------------------
 
 Updating a page on Wikipedia using `mwclient <https://github.com/mwclient/mwclient>`_
 
@@ -81,7 +99,7 @@ Updating a page on Wikipedia using `mwclient <https://github.com/mwclient/mwclie
    site = Site('en.wikipedia.org')
    site.login('USERNAME', 'PASSWORD')
    page = site.pages['SOME_PAGE']
-   te = TemplateEditor(page.edit())
+   te = TemplateEditor(page.text())
    if 'SOME_TEMPLATE' in page.templates:
       tpl = te.templates['SOME_TEMPLATE'][0]
       tpl.parameters['test'] = 'Hello'
@@ -103,3 +121,12 @@ Removing the first instance of a template:
     te = TemplateEditor(u"Hello {{mytpl}} world {{mytpl}}")
     te.templates['mytpl'][0].remove()
 
+
+Contributing
+------------
+
+Pull requests are very welcome. Please run tests before submitting:
+
+.. code-block:: console
+    
+    $ python setup.py test
