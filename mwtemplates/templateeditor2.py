@@ -9,7 +9,7 @@ Simple wikitext template parser and editor
 from __future__ import unicode_literals
 from __future__ import print_function
 import sys
-
+import weakref
 # <root>LLorem ipsum <template>
 # <title>
 #     <tplarg>
@@ -145,7 +145,10 @@ class Templates(object):
     """
 
     def __init__(self, editor, doc):
-        self.editor = editor
+
+        # Make child-parent reference weak to avoid memory leak
+        self.editor = weakref.ref(editor)
+
         self.doc = doc
         # self._entries = self._templates()
 
@@ -211,7 +214,9 @@ class Parameters(object):
 
     def __init__(self, template):
         self._entries = []
-        self.template = template
+
+        # Make child-parent reference weak to avoid memory leak
+        self.template = weakref.ref(template)
 
     def __contains__(self, param):
         # param is a Parameter object or a string
@@ -246,7 +251,7 @@ class Parameters(object):
             # print '"' + whitespace[0] + '", "' + whitespace[1] + '"'
             name = name_ws[0] + name + name_ws[1]
             val = value_ws[0] + val + value_ws[1]
-            parentnode = self.template.node
+            parentnode = self.template().node
             node = etree.XML('<part><name>%s</name>=<value>%s</value></part>'
                              % (name, val))
             parentnode.append(node)
@@ -266,7 +271,7 @@ class Parameters(object):
 
         i = self.index(param)
         logger.debug('Removing parameter "%s"', param.key)
-        self.template.node.remove(param.node)
+        self.template().node.remove(param.node)
         del self._entries[i]
 
     def __repr__(self):
@@ -486,9 +491,6 @@ class Template(object):
             return self.__unicode__().encode('utf-8')
 
     def remove(self):
-        self.__del__()
-
-    def __del__(self):
         logger.debug('Removing node "%s"', self.key)
         parent = self.node.getparent()
         prevnode = None
