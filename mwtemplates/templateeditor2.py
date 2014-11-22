@@ -551,7 +551,7 @@ class TemplateEditor(object):
         # for key, val in self.templates.items():
         #     for tpl in val:
         #         tpl.save()
-        return etree.tostring(self.doc)
+        return etree.tostring(self.doc, encoding='unicode')
 
     def wikitext(self):
         # for key, val in self.templates.items():

@@ -186,7 +186,7 @@ class TestTemplateEditor2(unittest.TestCase):
     def test_iteritems(self):
         text = 'Lorem {{Ipsum|dolor|sit|amet}}'
         te = TemplateEditor(text)
-        x = te.templates.iteritems().next()
+        x = next(te.templates.iteritems())
         self.assertEqual(x[0], 'Ipsum')
 
     def test_repr(self):
