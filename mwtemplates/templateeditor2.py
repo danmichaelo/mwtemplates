@@ -10,6 +10,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 import sys
 import weakref
+import six
 # <root>LLorem ipsum <template>
 # <title>
 #     <tplarg>
@@ -235,27 +236,29 @@ class Parameters(object):
             return default
 
     def __setitem__(self, name, val):
-        # python2   <->  python3
-        # 'unicode' <-> 'str'
-        # 'str'     <-> 'bytes'
-        if type(val).__name__ in ['unicode', 'str', 'bytes' 'int']:
-            for entry in self._entries:
-                if entry.key == name:
-                    # parameter changed:
-                    entry.edit(val)
-                    return
-            # new parameter:
-            name_ws, value_ws = self.find_whitespace_pattern()
-            # print '"' + whitespace[0] + '", "' + whitespace[1] + '"'
-            name = name_ws[0] + name + name_ws[1]
-            val = value_ws[0] + val + value_ws[1]
-            parentnode = self.template().node
-            node = etree.XML('<part><name>%s</name>=<value>%s</value></part>'
-                             % (name, val))
-            parentnode.append(node)
-            self.add(node)
-        else:
+
+        if isinstance(val, six.integer_types):
+            val = six.text_type(val)
+        elif not isinstance(val, six.string_types):
             raise TypeError
+
+        # Check if parameter exists
+        for entry in self._entries:
+            if entry.key == name:
+                # parameter changed:
+                entry.edit(val)
+                return
+
+        # If not, let's add it, trying to use any existing whitespace pattern:
+        name_ws, value_ws = self.find_whitespace_pattern()
+        # print '"' + whitespace[0] + '", "' + whitespace[1] + '"'
+        name = name_ws[0] + name + name_ws[1]
+        val = value_ws[0] + val + value_ws[1]
+        parentnode = self.template.node
+        node = etree.XML('<part><name>%s</name>=<value>%s</value></part>'
+                         % (name, val))
+        parentnode.append(node)
+        self.add(node)
 
     def __delitem__(self, param_name):
         param = self.__getitem__(param_name)
@@ -269,7 +272,7 @@ class Parameters(object):
 
         i = self.index(param)
         logger.debug('Removing parameter "%s"', param.key)
-        self.template().node.remove(param.node)
+        self.template.node.remove(param.node)
         del self._entries[i]
 
     def __repr__(self):
@@ -343,6 +346,11 @@ class Parameter(object):
                      self._name.strip(), self._value.strip())
 
     def edit(self, val):
+        if isinstance(val, six.integer_types):
+            val = six.text_type(val)
+        elif not isinstance(val, six.string_types):
+            raise TypeError
+
         logger.debug('Parameter "%s" changed: "%s" -> "%s"',
                      self.key, self.value.strip(), val)
         whitespace = get_whitespace(self._value)

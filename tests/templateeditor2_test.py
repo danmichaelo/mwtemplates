@@ -268,6 +268,42 @@ class TestTemplateEditor2(unittest.TestCase):
         tmp = text.replace('fr', 'no')
         self.assertEqual(dp.wikitext(), tmp)
 
+    def test_edit_parameter_using_integer(self):
+        # Check that a parameter can be renamed, with whitespace preserved
+        text = 'Lorem ipsum {{ Infoboks A\n| maks = 2 \n}} dolor sit amet'
+        dp = TemplateEditor(text)
+        templ = dp.templates['infoboks A'][0]
+        templ.parameters['maks'] = 3
+        tmp = text.replace('2', '3')
+        self.assertEqual(dp.wikitext(), tmp)
+
+    def test_edit_parameter_using_integer_alternative(self):
+        # Check that a parameter can be renamed, with whitespace preserved
+        text = 'Lorem ipsum {{ Infoboks A\n| maks = 2 \n}} dolor sit amet'
+        dp = TemplateEditor(text)
+        templ = dp.templates['infoboks A'][0]
+        templ.parameters['maks'].edit(3)
+        tmp = text.replace('2', '3')
+        self.assertEqual(dp.wikitext(), tmp)
+
+    def test_edit_parameter_using_invalid_type(self):
+        # Check that a parameter can be renamed, with whitespace preserved
+        def x():
+            text = 'Lorem ipsum {{ Infoboks A\n| maks = 2 \n}} dolor sit amet'
+            dp = TemplateEditor(text)
+            templ = dp.templates['infoboks A'][0]
+            templ.parameters['maks'] = None
+        self.assertRaises(TypeError, x)
+
+    def test_edit_parameter_using_invalid_type_alternative(self):
+        # Check that a parameter can be renamed, with whitespace preserved
+        def x():
+            text = 'Lorem ipsum {{ Infoboks A\n| maks = 2 \n}} dolor sit amet'
+            dp = TemplateEditor(text)
+            templ = dp.templates['infoboks A'][0]
+            templ.parameters['maks'].edit(None)
+        self.assertRaises(TypeError, x)
+
     def test_delete_parameter(self):
         # Check that a parameter can be renamed, with whitespace preserved
         text = 'Lorem ipsum {{ Infoboks A\n| maks = 2 \n}} dolor sit amet'
