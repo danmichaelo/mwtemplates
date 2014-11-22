@@ -42,13 +42,11 @@ Let's start by importing `TemplateEditor` and giving it some wikitext to eat:
 .. code-block:: python
 
     >>> from mwtemplates import TemplateEditor
-    >>> txt = u"""
-    ... {{Infobox cheese
+    >>> txt = u"""{{Infobox cheese
     ... | name = Mozzarella
     ... | protein = 7
     ... }}
-    ... Mozzarella is a cheese…{{tr}}
-    ... """
+    ... Mozzarella is a cheese…{{tr}}"""
     >>> te = TemplateEditor(txt)
 
 First, we can see what templates the editor found in the text:
@@ -75,6 +73,8 @@ Since there can be several instances of the same template, an array is always re
 Let's say we want to change the value of the `protein` parameter from 10 to 7. We then use
 the `wikitext()` method to return our new wikitext:
 
+.. code-block:: python
+
     >>> te.templates['Infobox cheese'][0].parameters['protein'] = 7
     >>> print te.wikitext()
     {{Infobox cheese
@@ -83,7 +83,18 @@ the `wikitext()` method to return our new wikitext:
     }}
     Mozzarella is a cheese…{{tr}}
 
-Notice that formatting is preserved.
+Notice that formatting is preserved. We could now go and add a new parameter like so:
+
+.. code-block:: python
+
+    >>> te.templates['Infobox cheese'][0].parameters['fat'] = 25
+    >>> print te.wikitext()
+    {{Infobox cheese
+    | name = Mozzarella
+    | protein = 7
+    | fat = 25
+    }}
+    Mozzarella is a cheese…{{tr}}
 
 
 Usage with mwclient to edit pages on Wikipedia
