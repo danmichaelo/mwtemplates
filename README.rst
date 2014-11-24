@@ -28,11 +28,14 @@ Tested with python 2.6, 2.7, 3.2, 3.3 and 3.4.
 Installation
 -------------------
 
-The package is on PyPI, so you can install it using `pip`, `easy_install` or similar:
+The package is on `PyPI <https://pypi.python.org/pypi/mwtemplates>`_, so you can install it
+using `pip`, `easy_install` or similar:
 
 .. code-block:: console
 
-   $ pip install mwtemplates
+   $ pip install -U mwtemplates
+
+Or you can grab the latest zip from `releases <https://github.com/danmichaelo/mwtemplates/release>`_.
 
 Introduction
 ------------
