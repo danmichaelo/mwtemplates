@@ -35,7 +35,7 @@ using `pip`, `easy_install` or similar:
 
    $ pip install -U mwtemplates
 
-Or you can grab the latest zip from `releases <https://github.com/danmichaelo/mwtemplates/release>`_.
+Or you can grab the latest zip from `releases <https://github.com/danmichaelo/mwtemplates/releases>`_.
 
 Introduction
 ------------
