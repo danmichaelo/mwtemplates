@@ -36,7 +36,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst')).read()
 
 setup(name='mwtemplates',
-      version='0.3.4dev',
+      version='0.3.4',
       description='MediaWiki template parser and editor',
       long_description=README,
       classifiers=[
