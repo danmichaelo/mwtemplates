@@ -154,6 +154,13 @@ class TestPreprocessor(unittest.TestCase):
             + '<template><title>ipsum</title></template></root>'
         self.assertEqual(xml, correct_xml)
 
+    def test_template_in_pre(self):
+        # The template should not be handled if inside <pre>
+        text = 'Lorem <pre>{{ipsum}}</pre>'
+        xml = preprocessToXml('%s' % text)
+        correct_xml = '<root>%s</root>' % htmlspecialchars(text)
+        self.assertEqual(xml, correct_xml)
+
     def test_template_in_math(self):
         # The template should not be handled if inside <math>
         text = 'Lorem <math>{{ipsum}}</math>'

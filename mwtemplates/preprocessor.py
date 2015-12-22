@@ -191,7 +191,7 @@ def preprocessToXml(text):
     }
 
     # tja..
-    xmlishRegex = '|'.join(['math', 'nowiki'])
+    xmlishRegex = '|'.join(['math', 'nowiki', 'pre'])
 
     # Use "A" modifier (anchored) instead of "^", because ^ doesn't work
     # with an offset
