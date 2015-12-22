@@ -47,12 +47,14 @@ class TestPreprocessor(unittest.TestCase):
         args = ('Unus', 'Duo', 'Infinitas')
         text = '{{%s|{{%s|{{%s}}}}}}' % args
         xml = preprocessToXml('%s' % text)
-        val = lambda name, val: '<template><title>%s</title>' % name \
-            + {'': ''}.get(val,
-                           '<part><name index="1" /><value>%s</value></part>'
-                           % val) + '</template>'
+
+        def tpl(name, val):
+            return '<template><title>%s</title>' % name + \
+                   {'': ''}.get(val,
+                                '<part><name index="1" /><value>%s</value></part>'
+                                % val) + '</template>'
         correct_xml = '<root>%s</root>' \
-            % val(args[0], val(args[1], val(args[2], '')))
+            % tpl(args[0], tpl(args[1], tpl(args[2], '')))
         self.assertEqual(xml, correct_xml)
 
     def test_template_with_tplarg(self):

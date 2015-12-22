@@ -286,8 +286,8 @@ def preprocessToXml(text):
                 matches = elementsRegex.match(text[i + 1:])
                 if matches is None:
                     # Element name missing or not listed
-                    logger.debug('  [%4d] Found tag with element name missing'
-                                 + ' or not listed (excerpt: %s...)',
+                    logger.debug('  [%4d] Found tag with element name missing' +
+                                 ' or not listed (excerpt: %s...)',
                                  i, text[i + 1:i + 1 + 10])
                     stack.accum += '&lt;'
                     i += 1
@@ -424,8 +424,8 @@ def preprocessToXml(text):
 
                     # $accum .= htmlspecialchars(str_repeat($curChar,$count));
                     stack.accum += curChar * count
-                    logger.debug('         ... which is not enough for'
-                                 + ' current rule. Continuing...')
+                    logger.debug('         ... which is not enough for' +
+                                 ' current rule. Continuing...')
 
                     i += count
                     continue
