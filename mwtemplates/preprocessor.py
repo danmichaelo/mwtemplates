@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import re
 import logging
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 # First we define a few useful functions from PHP:

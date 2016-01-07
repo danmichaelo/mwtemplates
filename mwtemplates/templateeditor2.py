@@ -62,7 +62,7 @@ except ImportError:
     from StringIO import StringIO  # Python 2
 from mwtemplates.preprocessor import preprocessToXml
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
