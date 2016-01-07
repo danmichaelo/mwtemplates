@@ -33,7 +33,10 @@ class PyTest(TestCommand):
 
 
 here = os.path.abspath(os.path.dirname(__file__))
-README = open(os.path.join(here, 'README.rst')).read()
+try:
+    README = open(os.path.join(here, 'README.rst'), encoding='utf-8').read()  # Python 3
+except TypeError:
+    README = open(os.path.join(here, 'README.rst')).read()  # Python 2
 
 setup(name='mwtemplates',
       version='0.3.4',
