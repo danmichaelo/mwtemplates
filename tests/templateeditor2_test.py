@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import unittest
 import sys
 import os
+import pytest
 
 from mwtemplates import TemplateEditor
 
@@ -411,6 +412,14 @@ class TestTemplateEditor2(unittest.TestCase):
         text = 'Lorem ipsum {{ }} dolor sit amet'
         dp = TemplateEditor(text)
         self.assertEqual(dp.wikitext(), text)
+
+    @pytest.mark.skipif(True, reason="known failure")
+    def test_nowiki_roundtrip(self):
+        # Check that <nowiki/> is not changed to <nowiki>
+        text = 'Lorem ipsum <nowiki/> dolor sit amet'
+        dp = TemplateEditor(text)
+        self.assertEqual(dp.wikitext(), text)
+
 
 if __name__ == '__main__':
     unittest.main()
