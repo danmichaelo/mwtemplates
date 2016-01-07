@@ -22,7 +22,7 @@ mwtemplates
    :alt: Downloads
 
 mwtemplates is a MediaWiki wikitext template parser and editor, based on a Python rewrite of the MediaWiki preprocessorDOM.php.
-Tested with python 2.6, 2.7, 3.2, 3.3 and 3.4.
+Tested with python 2.7, 3.3, 3.4, 3.5
 
 
 Installation
@@ -142,5 +142,5 @@ Contributing
 Pull requests are very welcome. Please run tests before submitting:
 
 .. code-block:: console
-    
+
     $ python setup.py test
