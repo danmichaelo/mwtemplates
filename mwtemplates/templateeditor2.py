@@ -10,6 +10,8 @@ from __future__ import unicode_literals
 from __future__ import print_function
 import weakref
 import six
+import sys
+
 # <root>LLorem ipsum <template>
 # <title>
 #     <tplarg>
@@ -62,6 +64,17 @@ from mwtemplates.preprocessor import preprocessToXml
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
+
+
+def force_encoded_string_output(func):
+    # Decorator for __repr__ methods
+    # Source: http://stackoverflow.com/a/13848698/489916
+    if sys.version_info.major < 3:
+        def _func(*args, **kwargs):
+            return func(*args, **kwargs).encode(sys.stdout.encoding or 'utf-8')
+        return _func
+    else:
+        return func
 
 
 class TemplateParseError(Exception):
@@ -175,6 +188,7 @@ class Templates(object):
         return [tpl for tpl in self._templates() if tpl.key == tpl_name]
         # raise KeyError
 
+    @force_encoded_string_output
     def __repr__(self):
         return self._templates().__repr__()
 
@@ -274,6 +288,7 @@ class Parameters(object):
         self.template.node.remove(param.node)
         del self._entries[i]
 
+    @force_encoded_string_output
     def __repr__(self):
         return '<Parameters: %s>' % (', '.join(['%s="%s"' % (x.key, x.value) for x in self._entries]))
 
@@ -416,6 +431,7 @@ class Parameter(object):
     def __int__(self):
         return int(self.__unicode__())
 
+    @force_encoded_string_output
     def __repr__(self):
         return self.value
 
@@ -440,6 +456,7 @@ class Template(object):
             elif elem.tag == 'part':
                 self.parameters.add(elem)
 
+    @force_encoded_string_output
     def __repr__(self):
         return '<Template:"%s" at line %d>' % (self.key, self.node.sourceline)
 
