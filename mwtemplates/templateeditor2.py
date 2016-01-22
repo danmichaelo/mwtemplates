@@ -63,7 +63,6 @@ except ImportError:
 from mwtemplates.preprocessor import preprocessToXml
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
 def force_encoded_string_output(func):

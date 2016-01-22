@@ -6,7 +6,6 @@ import re
 import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 # First we define a few useful functions from PHP:
 
