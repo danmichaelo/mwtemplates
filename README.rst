@@ -9,9 +9,13 @@ mwtemplates
    :target: https://coveralls.io/r/danmichaelo/mwtemplates
    :alt: Test coverage
 
+.. image:: https://img.shields.io/pypi/v/mwtemplates.svg?style=flat
+   :target: https://pypi.python.org/pypi/mwtemplates/
+   :alt: Latest version
+
 .. image:: https://img.shields.io/pypi/pyversions/mwtemplates.svg?style=flat
    :target: https://pypi.python.org/pypi/mwtemplates/
-   :alt: Latest Version
+   :alt: Supported Python versions
 
 .. image:: https://img.shields.io/pypi/dm/mwtemplates.svg?style=flat
    :target: https://pypi.python.org/pypi/mwtemplates/
