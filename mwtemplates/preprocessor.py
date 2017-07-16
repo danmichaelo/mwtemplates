@@ -167,7 +167,7 @@ class PPDPart(dict):
 def preprocessToXml(text):
 
     if type(text).__name__ != 'unicode' and type(text).__name__ != 'str':
-        raise StandardError("preprocessToXml only accepts unicode or str")
+        raise TypeError('preprocessToXml was given an argument of unknown type')
 
     rules = {
         '{': {
@@ -213,7 +213,7 @@ def preprocessToXml(text):
     while True:
         cnt += 1
         if cnt > 100000:
-            raise StandardError('Too long input. Aborting')
+            raise ValueError('Input text is too long. Max 100000 lines supported.')
 
         # if fakeLineStart:
         #     found = 'line-start'
