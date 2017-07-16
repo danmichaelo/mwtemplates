@@ -11,6 +11,7 @@ from __future__ import print_function
 import weakref
 import six
 import sys
+from xml.sax.saxutils import escape
 
 # <root>LLorem ipsum <template>
 # <title>
@@ -268,7 +269,7 @@ class Parameters(object):
         val = value_ws[0] + val + value_ws[1]
         parentnode = self.template.node
         node = etree.XML('<part><name>%s</name>=<value>%s</value></part>'
-                         % (name, val))
+                         % (escape(name), escape(val)))
         parentnode.append(node)
         self.add(node)
 

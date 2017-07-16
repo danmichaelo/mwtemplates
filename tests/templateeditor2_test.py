@@ -269,6 +269,14 @@ class TestTemplateEditor2(unittest.TestCase):
         tmp = text.replace('fr', 'no')
         self.assertEqual(dp.wikitext(), tmp)
 
+    def test_edit_parameter_using_value_that_needs_xml_escape(self):
+        # Check that "&" in values are properly handled
+        text = 'Lorem ipsum {{kilde www}} amet'
+        result = 'Lorem ipsum {{kilde www| url=http://www.skulabladid.fo/fo-FO/Tíðindasavn/Eldri-tíðindi.aspx?PID=30&M=NewsV2&Action=1&NewsId=3201&currentPage=83 }} amet'
+        dp = TemplateEditor(text)
+        dp.templates['kilde www'][0].parameters['url'] = 'http://www.skulabladid.fo/fo-FO/Tíðindasavn/Eldri-tíðindi.aspx?PID=30&M=NewsV2&Action=1&NewsId=3201&currentPage=83'
+        self.assertEqual(dp.wikitext(), result)
+
     def test_edit_parameter_using_integer(self):
         # Check that a parameter can be renamed, with whitespace preserved
         text = 'Lorem ipsum {{ Infoboks A\n| maks = 2 \n}} dolor sit amet'
