@@ -99,6 +99,38 @@ Notice that formatting is preserved. We could now go and add a new parameter lik
     }}
     Mozzarella is a cheese…{{tr}}
 
+To remove a template argument:
+
+.. code-block:: python
+
+    from mwtemplates import TemplateEditor
+    te = TemplateEditor(u"Hello {{mytpl | a=2 | b=3 | c=4 }} world")
+    te.templates['mytpl'].parameters.remove('b')
+
+To remove the first instance of a template:
+
+.. code-block:: python
+
+    from mwtemplates import TemplateEditor
+    te = TemplateEditor(u"Hello {{mytpl}} world {{mytpl}}")
+    te.templates['mytpl'][0].remove()
+
+
+Known issues
+----------------------------------------------
+
+The parser doesn't handle empty `<nowiki/>` tags. It will raise a
+`mwtemplates.NowikiError` error if feeded a page having one, so it's
+a good idea to handle those:
+
+.. code-block:: python
+
+    >>> from mwtemplates import TemplateEditor, NowikiError
+    >>> try:
+    >>>     te = TemplateEditor(txt)
+    >>> except NowikiError:
+    >>>     print('Page contains <nowiki/> tags, skipping.')
+
 
 Usage with mwclient to edit pages on Wikipedia
 ----------------------------------------------
@@ -118,22 +150,6 @@ Updating a page on Wikipedia using `mwclient <https://github.com/mwclient/mwclie
       tpl = te.templates['SOME_TEMPLATE'][0]
       tpl.parameters['test'] = 'Hello'
    page.save(te.wikitext(), summary='...')
-
-Removing a template argument:
-
-.. code-block:: python
-
-    from mwtemplates import TemplateEditor
-    te = TemplateEditor(u"Hello {{mytpl | a=2 | b=3 | c=4 }} world")
-    te.templates['mytpl'].parameters.remove('b')
-
-Removing the first instance of a template:
-
-.. code-block:: python
-
-    from mwtemplates import TemplateEditor
-    te = TemplateEditor(u"Hello {{mytpl}} world {{mytpl}}")
-    te.templates['mytpl'][0].remove()
 
 
 Contributing
