@@ -7,6 +7,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
+class NowikiError(RuntimeError):
+    pass
+
+
 # First we define a few useful functions from PHP:
 
 
@@ -168,6 +173,9 @@ def preprocessToXml(text):
 
     if type(text).__name__ != 'unicode' and type(text).__name__ != 'str':
         raise TypeError('preprocessToXml was given an argument of unknown type')
+
+    if re.search('<nowiki\s*/>', text, re.I):
+        raise NowikiError('Input text contains "<nowiki/>": https://github.com/danmichaelo/mwtemplates/issues/3')
 
     rules = {
         '{': {

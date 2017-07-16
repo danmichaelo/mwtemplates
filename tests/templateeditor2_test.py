@@ -5,7 +5,7 @@ import sys
 import os
 import pytest
 
-from mwtemplates import TemplateEditor
+from mwtemplates import TemplateEditor, NowikiError
 
 
 class TestTemplateEditor2(unittest.TestCase):
@@ -421,12 +421,11 @@ class TestTemplateEditor2(unittest.TestCase):
         dp = TemplateEditor(text)
         self.assertEqual(dp.wikitext(), text)
 
-    @pytest.mark.skipif(True, reason="known failure")
-    def test_nowiki_roundtrip(self):
-        # Check that <nowiki/> is not changed to <nowiki>
+    def test_nowiki(self):
+        # Check that <nowiki/> triggers NowikiError
         text = 'Lorem ipsum <nowiki/> dolor sit amet'
-        dp = TemplateEditor(text)
-        self.assertEqual(dp.wikitext(), text)
+        with pytest.raises(NowikiError, message="Expecting NowikiError"):
+            dp = TemplateEditor(text)
 
 
 if __name__ == '__main__':
