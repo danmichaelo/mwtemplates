@@ -39,7 +39,7 @@ except TypeError:
     README = open(os.path.join(here, 'README.rst')).read()  # Python 2
 
 setup(name='mwtemplates',
-      version='0.4.0',
+      version='0.5.0',
       description='MediaWiki template parser and editor',
       long_description=README,
       classifiers=[
@@ -58,7 +58,7 @@ setup(name='mwtemplates',
       url='https://github.com/danmichaelo/mwtemplates',
       license='MIT',
       packages=['mwtemplates'],
-      install_requires=['lxml', 'six'],
+      install_requires=['lxml', 'six', 'future'],
       cmdclass={'test': PyTest},
       tests_require=['pytest-pep8', 'pytest-cache', 'pytest', 'mock']
       )
