@@ -8,6 +8,7 @@ Simple wikitext template parser and editor
 
 from __future__ import unicode_literals
 from __future__ import print_function
+from future.utils import python_2_unicode_compatible
 import weakref
 import six
 import sys
@@ -341,6 +342,7 @@ class Parameters(object):
         return name_ws, value_ws
 
 
+@python_2_unicode_compatible
 class Parameter(object):
     """
     Class to hold a single template parameter.
@@ -402,12 +404,12 @@ class Parameter(object):
 
     def __eq__(self, param):
         if type(param).__name__ == 'unicode':
-            return self.__unicode__() == param
+            return self.__str__() == param
         elif type(param).__name__ == 'str':
             return self.__str__() == param
         elif type(param).__name__ == 'int':
             try:
-                return int(self.__unicode__()) == param
+                return int(self.__str__()) == param
             except ValueError:
                 return False
         else:
@@ -416,26 +418,21 @@ class Parameter(object):
     def __ne__(self, param):
         return not self.__eq__(param)
 
-    def __unicode__(self):
+    def __str__(self):
         return self._value.strip()
 
-    def __str__(self):
-        if six.PY3:
-            return self.__unicode__()
-        else:
-            return self.__unicode__().encode('utf-8')
-
     def __float__(self):
-        return float(self.__unicode__())
+        return float(self.__str__())
 
     def __int__(self):
-        return int(self.__unicode__())
+        return int(self.__str__())
 
     @force_encoded_string_output
     def __repr__(self):
         return self.value
 
 
+@python_2_unicode_compatible
 class Template(object):
     """
     Class to hold a single template.
@@ -496,7 +493,7 @@ class Template(object):
             lst.append(tmp[param])
         return lst
 
-    def __unicode__(self):
+    def __str__(self):
         tmp = '{{%s' % self.name
         for param in self.parameters:
             tmp += '\n |%s=%s' % (param.key, param.value)
@@ -505,12 +502,6 @@ class Template(object):
         tmp += '}}'
 
         return tmp
-
-    def __str__(self):
-        if six.PY3:
-            return self.__unicode__()
-        else:
-            return self.__unicode__().encode('utf-8')
 
     def remove(self):
         logger.debug('Removing node "%s"', self.key)
