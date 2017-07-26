@@ -433,7 +433,10 @@ class Parameter(object):
 
     def __getattr__(self, name):
         def wrapper(*args, **kwargs):
-            return getattr(self.__str__(), name)(*args, **kwargs)
+            if six.PY3:
+                return getattr(self.__str__(), name)(*args, **kwargs)
+            else:
+                return getattr(self.__unicode__(), name)(*args, **kwargs)
 
         return wrapper
 
