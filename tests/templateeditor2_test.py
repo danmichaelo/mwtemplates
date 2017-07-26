@@ -427,6 +427,12 @@ class TestTemplateEditor2(unittest.TestCase):
         with pytest.raises(NowikiError, message="Expecting NowikiError"):
             dp = TemplateEditor(text)
 
+    def test_param_wrapper(self):
+        # Check that parameter __getattr__ wrapper works
+        text = 'Lorem ipsum {{lang|æøå}} dolor sit amet'
+        e = TemplateEditor(text)
+        assert e.templates['lang'][0].parameters[1].startswith('æ')
+
 
 if __name__ == '__main__':
     unittest.main()

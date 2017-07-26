@@ -431,6 +431,12 @@ class Parameter(object):
     def __repr__(self):
         return self.value
 
+    def __getattr__(self, name):
+        def wrapper(*args, **kwargs):
+            return getattr(self.__str__(), name)(*args, **kwargs)
+
+        return wrapper
+
 
 @python_2_unicode_compatible
 class Template(object):
